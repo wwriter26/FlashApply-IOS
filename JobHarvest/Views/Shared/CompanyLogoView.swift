@@ -1,0 +1,41 @@
+import SwiftUI
+
+// Fetches company logo from Clearbit using a domain (e.g. "google.com").
+// Pass companyData?.logoDomain for best results; falls back to companyId.
+// Shows a building placeholder on failure.
+struct CompanyLogoView: View {
+    let domain: String?
+    let size: CGFloat
+
+    var body: some View {
+        Group {
+            if let domain = domain, !domain.isEmpty,
+               let url = URL(string: "https://logo.clearbit.com/\(domain)") {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image.resizable().scaledToFit()
+                    case .failure, .empty:
+                        placeholderView
+                    @unknown default:
+                        placeholderView
+                    }
+                }
+            } else {
+                placeholderView
+            }
+        }
+        .frame(width: size, height: size)
+        .cornerRadius(size * 0.2)
+    }
+
+    private var placeholderView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.2)
+                .fill(Color.flashTeal.opacity(0.15))
+            Image(systemName: "building.2.fill")
+                .font(.system(size: size * 0.4))
+                .foregroundColor(.flashTeal)
+        }
+    }
+}

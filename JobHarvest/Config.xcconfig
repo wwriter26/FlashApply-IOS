@@ -1,0 +1,12 @@
+//
+//  Config.xcconfig
+//  JobHarvest
+//
+//  Created by William Writer on 2/22/26.
+//
+
+API_DOMAIN = http://localhost:3002
+
+//STRIPE_KEY = pk_test_YOUR_STRIPE_KEY
+
+BUCKET_NAME = dev-jobharvest-user-file-bucket
