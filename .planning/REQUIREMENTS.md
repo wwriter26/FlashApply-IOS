@@ -134,26 +134,27 @@
 | SWIPE-05 | Phase 3 | Pending |
 | SWIPE-06 | Phase 3 | Pending |
 | SWIPE-07 | Phase 3 | Pending |
-| JOBS-01 | Phase 4 | Pending |
-| JOBS-02 | Phase 4 | Pending |
-| JOBS-03 | Phase 4 | Pending |
-| JOBS-04 | Phase 4 | Pending |
-| JOBS-05 | Phase 4 | Pending |
-| PAY-01 | Phase 4 | Pending |
-| PAY-02 | Phase 4 | Pending |
-| PAY-03 | Phase 4 | Pending |
-| PAY-04 | Phase 4 | Pending |
-| PAY-05 | Phase 4 | Pending |
-| UX-01 | Phase 4 | Pending |
-| UX-02 | Phase 4 | Pending |
-| UX-03 | Phase 4 | Pending |
-| UX-04 | Phase 4 | Pending |
+| JOBS-01 | Phase 3 | Pending |
+| JOBS-02 | Phase 3 | Pending |
+| JOBS-03 | Phase 3 | Pending |
+| JOBS-04 | Phase 3 | Pending |
+| JOBS-05 | Phase 3 | Pending |
+| PAY-01 | Phase 3 | Pending |
+| PAY-02 | Phase 3 | Pending |
+| PAY-03 | Phase 3 | Pending |
+| PAY-04 | Phase 3 | Pending |
+| PAY-05 | Phase 3 | Pending |
+| UX-01 | Phase 3 | Pending |
+| UX-02 | Phase 3 | Pending |
+| UX-03 | Phase 3 | Pending |
+| UX-04 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 39 total
 - Mapped to phases: 39
 - Unmapped: 0 ✓
+- Note: Phase 4 (Hardening) delivers observability, memory, and stability work tracked as v2 requirements (OBS-01, PERF-01, PERF-02) and architectural fixes — it has no exclusive v1 requirement IDs but is required for a shippable app.
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after initial definition*
+*Last updated: 2026-03-11 after roadmap creation — corrected phase mapping for JOBS/PAY/UX to Phase 3*
