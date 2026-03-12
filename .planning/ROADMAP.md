@@ -12,7 +12,7 @@ The entire app is already built — it is functionally blocked by a single confi
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Connectivity** - Fix the xcconfig domain and Amplify config so every API call reaches the correct backend
+- [x] **Phase 1: Connectivity** - Fix the xcconfig domain and Amplify config so every API call reaches the correct backend (completed 2026-03-12)
 - [ ] **Phase 2: Auth and Profile Foundation** - Correct auth routing, shared ProfileViewModel, and complete onboarding quiz
 - [ ] **Phase 3: Feature Polish** - Verify and polish swipe, applied jobs, payments, and error handling end-to-end
 - [ ] **Phase 4: Hardening** - Add observability, memory guards, Hub token stability, and image caching
@@ -75,7 +75,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Connectivity | 0/1 | Not started | - |
+| 1. Connectivity | 1/1 | Complete   | 2026-03-12 |
 | 2. Auth and Profile Foundation | 0/TBD | Not started | - |
 | 3. Feature Polish | 0/TBD | Not started | - |
 | 4. Hardening | 0/TBD | Not started | - |

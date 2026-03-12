@@ -7,10 +7,10 @@
 
 ### Connectivity
 
-- [ ] **CONN-01**: App successfully reaches `https://dev.jobharvest-api.com` — no 403 errors from wrong API domain
-- [ ] **CONN-02**: `Config.xcconfig` `API_DOMAIN` is set to `https://dev.jobharvest-api.com`
-- [ ] **CONN-03**: `amplifyconfiguration.json` Cognito pool IDs match the dev environment
-- [ ] **CONN-04**: Missing config keys cause a `fatalError` in DEBUG builds (no silent fallback to prod)
+- [x] **CONN-01**: App successfully reaches `https://dev.jobharvest-api.com` — no 403 errors from wrong API domain
+- [x] **CONN-02**: `Config.xcconfig` `API_DOMAIN` is set to `https://dev.jobharvest-api.com`
+- [x] **CONN-03**: `amplifyconfiguration.json` Cognito pool IDs match the dev environment
+- [x] **CONN-04**: Missing config keys cause a `fatalError` in DEBUG builds (no silent fallback to prod)
 
 ### Authentication
 
@@ -107,10 +107,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONN-01 | Phase 1 | Pending |
-| CONN-02 | Phase 1 | Pending |
-| CONN-03 | Phase 1 | Pending |
-| CONN-04 | Phase 1 | Pending |
+| CONN-01 | Phase 1 | Complete |
+| CONN-02 | Phase 1 | Complete |
+| CONN-03 | Phase 1 | Complete |
+| CONN-04 | Phase 1 | Complete |
 | AUTH-01 | Phase 2 | Pending |
 | AUTH-02 | Phase 2 | Pending |
 | AUTH-03 | Phase 2 | Pending |

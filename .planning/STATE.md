@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+stopped_at: Completed 01-connectivity-01-PLAN.md
+last_updated: "2026-03-12T03:31:17.642Z"
+last_activity: 2026-03-11 — Roadmap created; requirements mapped to 4 phases
+progress:
+  total_phases: 4
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 100
+---
+
 # Project State
 
 ## Project Reference
@@ -14,7 +30,7 @@ Plan: 0 of TBD in current phase
 Status: Ready to plan
 Last activity: 2026-03-11 — Roadmap created; requirements mapped to 4 phases
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -34,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-connectivity P01 | 3 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -45,6 +62,9 @@ Recent decisions affecting current work:
 - [Init]: Use `dev.jobharvest-api.com` as API domain — only active backend environment; prod not yet ready
 - [Init]: Keep existing 5-tab navigation structure — already built, just needs polish
 - [Init]: Polish-first approach — foundation is solid; fastest path to working app
+- [Phase 01-connectivity]: Use $() xcconfig URL-escaping trick to prevent Xcode stripping // in API_DOMAIN value
+- [Phase 01-connectivity]: Crash-loudly in DEBUG for misconfigured API_DOMAIN — silent fallback to production causes hard-to-debug 403 errors
+- [Phase 01-connectivity]: Keep Config.xcconfig and amplifyconfiguration.json tracked by git — no secrets; templates serve as developer documentation
 
 ### Pending Todos
 
@@ -58,6 +78,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11
-Stopped at: Roadmap and STATE.md created; ready to plan Phase 1
+Last session: 2026-03-12T03:31:17.640Z
+Stopped at: Completed 01-connectivity-01-PLAN.md
 Resume file: None
