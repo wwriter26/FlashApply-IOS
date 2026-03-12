@@ -2,7 +2,17 @@ import SwiftUI
 
 // MARK: - API
 enum AppConfig {
-    static let apiDomain = Bundle.main.infoDictionary?["API_DOMAIN"] as? String ?? "https://api.flashapply.com"
+    static let apiDomain: String = {
+        guard let value = Bundle.main.infoDictionary?["API_DOMAIN"] as? String,
+              !value.isEmpty else {
+            #if DEBUG
+            fatalError("API_DOMAIN is missing or empty in Config.xcconfig / Info.plist. Copy Config.xcconfig.template to Config.xcconfig and set API_DOMAIN.")
+            #else
+            return "https://jobharvest-api.com"
+            #endif
+        }
+        return value
+    }()
     static let stripePublishableKey = Bundle.main.infoDictionary?["STRIPE_KEY"] as? String ?? ""
     static let bucketName = Bundle.main.infoDictionary?["BUCKET_NAME"] as? String ?? ""
 }
