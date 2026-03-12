@@ -28,7 +28,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Amplify auth tokens are issued by the dev Cognito pool (not prod)
   3. A misconfigured or missing `API_DOMAIN` causes an immediate crash in DEBUG builds (no silent fallback to production)
   4. A developer setting up the project locally can follow a template file to configure their environment correctly
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md — Fix API_DOMAIN, add fatalError guards, create developer onboarding templates
 
 ### Phase 2: Auth and Profile Foundation
 **Goal**: Users are routed correctly on first run vs. returning run, onboarding collects all required data, and profile state is shared (not duplicated) across the app
@@ -72,7 +75,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Connectivity | 0/TBD | Not started | - |
+| 1. Connectivity | 0/1 | Not started | - |
 | 2. Auth and Profile Foundation | 0/TBD | Not started | - |
 | 3. Feature Polish | 0/TBD | Not started | - |
 | 4. Hardening | 0/TBD | Not started | - |
