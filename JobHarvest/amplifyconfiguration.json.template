@@ -1,0 +1,62 @@
+{
+  "UserAgent": "aws-amplify-cli/2.0",
+  "Version": "1.0",
+  "auth": {
+    "plugins": {
+      "awsCognitoAuthPlugin": {
+        "UserAgent": "aws-amplify-cli/cognito",
+        "Version": "0.1.0",
+        "IdentityManager": {
+          "Default": {}
+        },
+        "CredentialsProvider": {
+          "CognitoIdentity": {
+            "Default": {
+              "PoolId": "REGION:YOUR_IDENTITY_POOL_ID",
+              "Region": "us-west-1"
+            }
+          }
+        },
+        "CognitoUserPool": {
+          "Default": {
+            "PoolId": "REGION_YOUR_USER_POOL_ID",
+            "AppClientId": "YOUR_APP_CLIENT_ID",
+            "Region": "us-west-1"
+          }
+        },
+        "Auth": {
+          "Default": {
+            "authenticationFlowType": "USER_SRP_AUTH",
+            "socialProviders": ["GOOGLE", "SIGN_IN_WITH_APPLE"],
+            "usernameAttributes": ["EMAIL"],
+            "signupAttributes": ["EMAIL", "NAME"],
+            "passwordProtectionSettings": {
+              "passwordPolicyMinLength": 8,
+              "passwordPolicyCharacters": []
+            },
+            "mfaConfiguration": "OFF",
+            "mfaTypes": ["SMS"],
+            "verificationMechanisms": ["EMAIL"]
+          }
+        },
+        "OAuth": {
+          "Default": {
+            "WebDomain": "auth.YOUR_ENV.jobharvest.com",
+            "AppClientId": "YOUR_APP_CLIENT_ID",
+            "SignInRedirectURI": "jobharvest://callback",
+            "SignOutRedirectURI": "jobharvest://signout",
+            "Scopes": ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"]
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "plugins": {
+      "awsS3StoragePlugin": {
+        "bucket": "YOUR_ENV-jobharvest-user-file-bucket",
+        "region": "us-west-1"
+      }
+    }
+  }
+}
