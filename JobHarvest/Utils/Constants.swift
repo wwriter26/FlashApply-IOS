@@ -11,7 +11,7 @@ enum AppConfig {
             return "https://jobharvest-api.com"
             #endif
         }
-        return value
+        return value.hasPrefix("http") ? value : "https://\(value)"
     }()
     static let stripePublishableKey = Bundle.main.infoDictionary?["STRIPE_KEY"] as? String ?? ""
     static let bucketName = Bundle.main.infoDictionary?["BUCKET_NAME"] as? String ?? ""
