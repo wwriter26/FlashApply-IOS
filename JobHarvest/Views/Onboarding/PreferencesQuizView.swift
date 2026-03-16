@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 
 struct PreferencesQuizView: View {
     @EnvironmentObject var authVM: AuthViewModel
-    @StateObject private var profileVM = ProfileViewModel()
+    @EnvironmentObject var profileVM: ProfileViewModel
     @State private var currentStep = 0
     @State private var isSubmitting = false
     @State private var error: String?
@@ -25,8 +25,73 @@ struct PreferencesQuizView: View {
 
     private let totalSteps = 5
     private let workAuthOptions = ["US Citizen", "Green Card", "H-1B Visa", "OPT/CPT", "Other"]
+    private let suggestedSkills = [
+        "Python", "JavaScript", "TypeScript", "Swift", "Java", "C++", "SQL", "Go", "Rust",
+        "React", "Node.js", "AWS", "Docker", "Kubernetes",
+        "Machine Learning", "Data Analysis", "Excel",
+        "Project Management", "Product Management",
+        "Communication", "Leadership", "Marketing",
+        "UI/UX Design", "Figma", "Adobe Creative Suite"
+    ]
+
+    // MARK: - UserDefaults Keys
+    private enum QuizKeys {
+        static let currentStep = "quiz_currentStep"
+        static let firstName = "quiz_firstName"
+        static let lastName = "quiz_lastName"
+        static let phone = "quiz_phone"
+        static let workAuth = "quiz_workAuth"
+        static let requiresSponsorship = "quiz_requiresSponsorship"
+        static let skills = "quiz_skills"
+        static let jobTypes = "quiz_jobTypes"
+        static let remoteOnly = "quiz_remoteOnly"
+        static let resumeFileName = "quiz_resumeFileName"
+    }
+
+    static func clearSavedQuizState() {
+        let defaults = UserDefaults.standard
+        [QuizKeys.currentStep, QuizKeys.firstName, QuizKeys.lastName,
+         QuizKeys.phone, QuizKeys.workAuth, QuizKeys.requiresSponsorship,
+         QuizKeys.skills, QuizKeys.jobTypes, QuizKeys.remoteOnly,
+         QuizKeys.resumeFileName].forEach { defaults.removeObject(forKey: $0) }
+    }
 
     var body: some View {
+        quizStackWithPersistence
+    }
+
+    private var quizStackWithSheet: some View {
+        quizStack
+            .sheet(isPresented: $showDocumentPicker) {
+                DocumentPickerView(allowedTypes: [.pdf]) { url in
+                    if let data = try? Data(contentsOf: url) {
+                        resumeData = data
+                        resumeFileName = url.lastPathComponent
+                    }
+                }
+            }
+    }
+
+    private var quizStackWithPersistenceA: some View {
+        quizStackWithSheet
+            .onAppear(perform: restoreQuizState)
+            .onChange(of: currentStep) { v in UserDefaults.standard.set(v, forKey: QuizKeys.currentStep) }
+            .onChange(of: firstName) { v in UserDefaults.standard.set(v, forKey: QuizKeys.firstName) }
+            .onChange(of: lastName) { v in UserDefaults.standard.set(v, forKey: QuizKeys.lastName) }
+            .onChange(of: phone) { v in UserDefaults.standard.set(v, forKey: QuizKeys.phone) }
+            .onChange(of: workAuth) { v in UserDefaults.standard.set(v, forKey: QuizKeys.workAuth) }
+    }
+
+    private var quizStackWithPersistence: some View {
+        quizStackWithPersistenceA
+            .onChange(of: requiresSponsorship) { v in UserDefaults.standard.set(v, forKey: QuizKeys.requiresSponsorship) }
+            .onChange(of: skills) { v in UserDefaults.standard.set(v, forKey: QuizKeys.skills) }
+            .onChange(of: jobTypes) { v in UserDefaults.standard.set(v, forKey: QuizKeys.jobTypes) }
+            .onChange(of: remoteOnly) { v in UserDefaults.standard.set(v, forKey: QuizKeys.remoteOnly) }
+            .onChange(of: resumeFileName) { v in UserDefaults.standard.set(v, forKey: QuizKeys.resumeFileName) }
+    }
+
+    private var quizStack: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Progress bar
@@ -62,6 +127,7 @@ struct PreferencesQuizView: View {
             }
             .confirmationDialog("Skip Profile Setup?", isPresented: $showSkipConfirm, titleVisibility: .visible) {
                 Button("Skip for Now") {
+                    PreferencesQuizView.clearSavedQuizState()
                     Task { await authVM.markOnboardingComplete() }
                 }
                 Button("Cancel", role: .cancel) {}
@@ -69,14 +135,22 @@ struct PreferencesQuizView: View {
                 Text("You'll need to upload a resume before you can start swiping on jobs. You can complete your profile anytime from the Profile tab.")
             }
         }
-        .sheet(isPresented: $showDocumentPicker) {
-            DocumentPickerView(allowedTypes: [.pdf]) { url in
-                if let data = try? Data(contentsOf: url) {
-                    resumeData = data
-                    resumeFileName = url.lastPathComponent
-                }
-            }
-        }
+    }
+
+    private func restoreQuizState() {
+        let defaults = UserDefaults.standard
+        currentStep = defaults.integer(forKey: QuizKeys.currentStep)
+        firstName = defaults.string(forKey: QuizKeys.firstName) ?? ""
+        lastName = defaults.string(forKey: QuizKeys.lastName) ?? ""
+        phone = defaults.string(forKey: QuizKeys.phone) ?? ""
+        workAuth = defaults.string(forKey: QuizKeys.workAuth) ?? "US Citizen"
+        requiresSponsorship = defaults.bool(forKey: QuizKeys.requiresSponsorship)
+        skills = defaults.stringArray(forKey: QuizKeys.skills) ?? []
+        jobTypes = defaults.stringArray(forKey: QuizKeys.jobTypes) ?? []
+        remoteOnly = defaults.bool(forKey: QuizKeys.remoteOnly)
+        resumeFileName = defaults.string(forKey: QuizKeys.resumeFileName) ?? ""
+        // Note: resumeData (binary) is NOT persisted -- user must re-select PDF after force-quit
+        // But resumeFileName is preserved so the UI shows the previous selection name
     }
 
     // MARK: - Progress Bar
@@ -211,6 +285,32 @@ struct PreferencesQuizView: View {
 
                 Toggle("Remote Only", isOn: $remoteOnly).tint(.flashTeal)
 
+                Divider().padding(.vertical, 8)
+
+                Text("Skills").font(.headline)
+                Text("Select skills relevant to your job search")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                FlowLayout(items: suggestedSkills) { skill in
+                    Button(action: {
+                        if skills.contains(skill) {
+                            skills.removeAll { $0 == skill }
+                        } else {
+                            skills.append(skill)
+                        }
+                    }) {
+                        Text(skill)
+                            .font(.callout)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(skills.contains(skill) ? Color.flashTeal : Color.flashTeal.opacity(0.1))
+                            .foregroundColor(skills.contains(skill) ? .white : .flashTeal)
+                            .cornerRadius(20)
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 if let error = error {
                     Text(error).foregroundColor(.red).font(.caption)
                 }
@@ -256,25 +356,35 @@ struct PreferencesQuizView: View {
     // MARK: - Submit
     private func submitProfile() {
         isSubmitting = true
+        error = nil
         Task {
             do {
-                // Upload resume
+                // STEP 1: Merge quiz answers into the shared VM's profile FIRST
+                // This must happen BEFORE uploadResume, because uploadResume POSTs
+                // the full profileVM.profile to the backend.
+                profileVM.profile.firstName = firstName
+                profileVM.profile.lastName = lastName
+                if !phone.isEmpty { profileVM.profile.phone = phone }
+                profileVM.profile.workAuthorization = workAuth
+                profileVM.profile.sponsorship = requiresSponsorship
+                if !resumeFileName.isEmpty { profileVM.profile.resumeFileName = resumeFileName }
+                profileVM.profile.jobPreferences = JobPreferences(
+                    jobTypes: jobTypes.isEmpty ? nil : jobTypes,
+                    remoteOnly: remoteOnly
+                )
+                if !skills.isEmpty { profileVM.profile.skills = skills }
+
+                // STEP 2: Upload resume (which POSTs profileVM.profile including merged fields)
                 if let data = resumeData, !resumeFileName.isEmpty {
-                    try await FileUploadService.shared.uploadResume(data: data, fileName: resumeFileName)
+                    await profileVM.uploadResume(data: data, fileName: resumeFileName)
                 }
 
-                // Build profile patch
-                var profile = UserProfile()
-                profile.firstName = firstName
-                profile.lastName = lastName
-                profile.phone = phone
-                profile.workAuthorization = workAuth
-                profile.sponsorship = requiresSponsorship
-                profile.resumeFileName = resumeFileName.isEmpty ? nil : resumeFileName
-                profile.jobPreferences = JobPreferences(jobTypes: jobTypes, remoteOnly: remoteOnly)
+                // STEP 3: Save full profile (in case no resume, or to ensure all fields saved)
+                try await profileVM.updateProfile(profileVM.profile)
 
-                try await profileVM.updateProfile(profile)
+                // STEP 4: Mark onboarding complete
                 await authVM.markOnboardingComplete()
+                PreferencesQuizView.clearSavedQuizState()
             } catch {
                 self.error = error.localizedDescription
             }
