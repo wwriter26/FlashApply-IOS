@@ -81,6 +81,8 @@ final class ProfileViewModel: ObservableObject {
                 body: profile
             )
             AppLogger.files.info("uploadResume: profile updated with resume key")
+            // Re-fetch to confirm persistence and sync server-side transformations
+            await fetchProfile()
         } catch {
             AppLogger.files.error("uploadResume: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription

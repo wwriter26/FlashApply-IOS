@@ -120,7 +120,14 @@ final class NetworkService {
             req.setValue(value, forHTTPHeaderField: key)
         }
         if let body = body {
-            req.httpBody = try JSONEncoder().encode(body)
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            req.httpBody = try encoder.encode(body)
+            #if DEBUG
+            if let bodyData = req.httpBody, let bodyStr = String(data: bodyData, encoding: .utf8) {
+                AppLogger.network.debug("Request body: \(bodyStr.prefix(500))")
+            }
+            #endif
         }
         #if DEBUG
         AppLogger.network.debug("[\(method)] \(url.absoluteString) — outgoing headers: \(headers.map { "\($0.key): \($0.key == "Authorization" ? String($0.value.prefix(40)) + "..." : $0.value)" }.joined(separator: ", "))")
@@ -141,7 +148,9 @@ final class NetworkService {
             switch http.statusCode {
             case 200...299:
                 do {
-                    return try JSONDecoder().decode(T.self, from: data)
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    return try decoder.decode(T.self, from: data)
                 } catch {
                     let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"
                     AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) — decode error: \(error) | raw: \(raw)")
