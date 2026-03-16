@@ -121,7 +121,6 @@ final class NetworkService {
         }
         if let body = body {
             let encoder = JSONEncoder()
-            encoder.keyEncodingStrategy = .convertToSnakeCase
             req.httpBody = try encoder.encode(body)
             #if DEBUG
             if let bodyData = req.httpBody, let bodyStr = String(data: bodyData, encoding: .utf8) {
@@ -149,7 +148,6 @@ final class NetworkService {
             case 200...299:
                 do {
                     let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
                     return try decoder.decode(T.self, from: data)
                 } catch {
                     let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"

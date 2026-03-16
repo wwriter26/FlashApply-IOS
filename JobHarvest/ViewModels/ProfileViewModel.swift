@@ -75,10 +75,13 @@ final class ProfileViewModel: ObservableObject {
             try await FileUploadService.shared.uploadResume(data: data, fileName: fileName)
             profile.resumeFileName = fileName
             let userId = try await AuthService.shared.getCurrentUserId()
+            // POST only the changed field — sending the full profile would overwrite
+            // server-side data with nil for any field the local struct doesn't have populated.
+            let patch: [String: String] = ["resumeFileName": fileName]
             let _: MessageResponse = try await network.request(
                 "/users/\(userId)/profile",
                 method: "POST",
-                body: profile
+                body: patch
             )
             AppLogger.files.info("uploadResume: profile updated with resume key")
             // Re-fetch to confirm persistence and sync server-side transformations

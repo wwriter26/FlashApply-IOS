@@ -3,6 +3,11 @@ import Combine
 import Amplify
 import os
 
+// NOTE: The local `AuthError` enum declared in AuthService.swift shadows `Amplify.AuthError`
+// throughout this module. We catch `any AmplifyError` (the protocol that Amplify.AuthError
+// conforms to) instead — it is unambiguous, also carries `errorDescription`, and correctly
+// matches every error thrown by Amplify.Auth.* calls that propagate through AuthService.
+
 @MainActor
 final class AuthViewModel: ObservableObject {
     @Published var isLoaded = false
@@ -47,8 +52,11 @@ final class AuthViewModel: ObservableObject {
         do {
             try await auth.signIn(email: email, password: password)
             await checkAuthState()
+        } catch let authError as any AmplifyError {
+            AppLogger.auth.error("signIn failed: \(authError.errorDescription)")
+            self.error = authError.errorDescription
         } catch {
-            AppLogger.auth.error("signIn failed: \(error.localizedDescription)")
+            AppLogger.auth.error("signIn failed: \(error)")
             self.error = error.localizedDescription
         }
         isLoading = false
@@ -76,8 +84,13 @@ final class AuthViewModel: ObservableObject {
 
             isLoading = false
             return true
+        } catch let authError as any AmplifyError {
+            AppLogger.auth.error("signUp: Cognito signup failed — \(authError.errorDescription)")
+            self.error = authError.errorDescription
+            isLoading = false
+            return false
         } catch {
-            AppLogger.auth.error("signUp: Cognito signup failed — \(error.localizedDescription)")
+            AppLogger.auth.error("signUp: Cognito signup failed — \(error)")
             self.error = error.localizedDescription
             isLoading = false
             return false
@@ -93,8 +106,13 @@ final class AuthViewModel: ObservableObject {
             AppLogger.auth.info("confirmSignUp: email verified for \(email)")
             isLoading = false
             return true
+        } catch let authError as any AmplifyError {
+            AppLogger.auth.error("confirmSignUp failed: \(authError.errorDescription)")
+            self.error = authError.errorDescription
+            isLoading = false
+            return false
         } catch {
-            AppLogger.auth.error("confirmSignUp failed: \(error.localizedDescription)")
+            AppLogger.auth.error("confirmSignUp failed: \(error)")
             self.error = error.localizedDescription
             isLoading = false
             return false
@@ -124,7 +142,12 @@ final class AuthViewModel: ObservableObject {
         do {
             try await auth.resendSignUpCode(email: email)
             isLoading = false
+        } catch let authError as any AmplifyError {
+            AppLogger.auth.error("resendSignUpCode failed: \(authError.errorDescription)")
+            self.error = authError.errorDescription
+            isLoading = false
         } catch {
+            AppLogger.auth.error("resendSignUpCode failed: \(error)")
             self.error = error.localizedDescription
             isLoading = false
         }
@@ -138,7 +161,13 @@ final class AuthViewModel: ObservableObject {
             try await auth.forgotPassword(email: email)
             isLoading = false
             return true
+        } catch let authError as any AmplifyError {
+            AppLogger.auth.error("forgotPassword failed: \(authError.errorDescription)")
+            self.error = authError.errorDescription
+            isLoading = false
+            return false
         } catch {
+            AppLogger.auth.error("forgotPassword failed: \(error)")
             self.error = error.localizedDescription
             isLoading = false
             return false
@@ -152,7 +181,13 @@ final class AuthViewModel: ObservableObject {
             try await auth.confirmForgotPassword(email: email, code: code, newPassword: newPassword)
             isLoading = false
             return true
+        } catch let authError as any AmplifyError {
+            AppLogger.auth.error("confirmForgotPassword failed: \(authError.errorDescription)")
+            self.error = authError.errorDescription
+            isLoading = false
+            return false
         } catch {
+            AppLogger.auth.error("confirmForgotPassword failed: \(error)")
             self.error = error.localizedDescription
             isLoading = false
             return false
@@ -166,8 +201,11 @@ final class AuthViewModel: ObservableObject {
         do {
             try await auth.signInWithApple()
             await checkAuthState()
+        } catch let authError as any AmplifyError {
+            AppLogger.auth.error("signInWithApple failed: \(authError.errorDescription)")
+            self.error = authError.errorDescription
         } catch {
-            AppLogger.auth.error("signInWithApple failed: \(error.localizedDescription)")
+            AppLogger.auth.error("signInWithApple failed: \(error)")
             self.error = error.localizedDescription
         }
         isLoading = false
@@ -179,8 +217,11 @@ final class AuthViewModel: ObservableObject {
         do {
             try await auth.signInWithGoogle()
             await checkAuthState()
+        } catch let authError as any AmplifyError {
+            AppLogger.auth.error("signInWithGoogle failed: \(authError.errorDescription)")
+            self.error = authError.errorDescription
         } catch {
-            AppLogger.auth.error("signInWithGoogle failed: \(error.localizedDescription)")
+            AppLogger.auth.error("signInWithGoogle failed: \(error)")
             self.error = error.localizedDescription
         }
         isLoading = false
