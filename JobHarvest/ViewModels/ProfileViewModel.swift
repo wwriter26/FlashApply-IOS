@@ -73,19 +73,14 @@ final class ProfileViewModel: ObservableObject {
         AppLogger.files.debug("uploadResume: \(fileName) (\(data.count) bytes)")
         do {
             try await FileUploadService.shared.uploadResume(data: data, fileName: fileName)
-            profile.resumeFileName = fileName
-            let userId = try await AuthService.shared.getCurrentUserId()
-            // POST only the changed field — sending the full profile would overwrite
-            // server-side data with nil for any field the local struct doesn't have populated.
-            let patch: [String: String] = ["resumeFileName": fileName]
-            let _: MessageResponse = try await network.request(
-                "/users/\(userId)/profile",
-                method: "POST",
-                body: patch
-            )
-            AppLogger.files.info("uploadResume: profile updated with resume key")
-            // Re-fetch to confirm persistence and sync server-side transformations
+            // Fetch current profile from server first so we have the full state,
+            // then update resumeFileName and POST the complete profile.
+            // The backend expects the full profile body (partial dicts are ignored).
             await fetchProfile()
+            var updated = profile
+            updated.resumeFileName = fileName
+            try await updateProfile(updated)
+            AppLogger.files.info("uploadResume: profile updated with resume key")
         } catch {
             AppLogger.files.error("uploadResume: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription

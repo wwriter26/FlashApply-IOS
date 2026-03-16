@@ -53,7 +53,7 @@ final class AuthViewModel: ObservableObject {
             try await auth.signIn(email: email, password: password)
             await checkAuthState()
         } catch let authError as any AmplifyError {
-            AppLogger.auth.error("signIn failed: \(authError.errorDescription)")
+            AppLogger.auth.error("signIn failed: \(authError.errorDescription) | recovery: \(authError.recoverySuggestion) | underlying: \(String(describing: authError.underlyingError))")
             self.error = authError.errorDescription
         } catch {
             AppLogger.auth.error("signIn failed: \(error)")
