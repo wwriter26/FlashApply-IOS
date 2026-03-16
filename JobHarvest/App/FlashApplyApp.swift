@@ -7,6 +7,10 @@ import os
 @main
 struct JobHarvestApp: App {
     @StateObject private var authVM = AuthViewModel()
+    @StateObject private var profileVM = ProfileViewModel()
+    @StateObject private var jobCardsVM = JobCardsViewModel()
+    @StateObject private var appliedJobsVM = AppliedJobsViewModel()
+    @StateObject private var mailboxVM = MailboxViewModel()
 
     init() {
         configureAmplify()
@@ -16,6 +20,10 @@ struct JobHarvestApp: App {
         WindowGroup {
             AppRouter()
                 .environmentObject(authVM)
+                .environmentObject(profileVM)
+                .environmentObject(jobCardsVM)
+                .environmentObject(appliedJobsVM)
+                .environmentObject(mailboxVM)
                 .preferredColorScheme(.light)
         }
     }

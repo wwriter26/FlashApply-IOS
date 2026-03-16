@@ -136,4 +136,16 @@ final class MailboxViewModel: ObservableObject {
             update(&emails[idx])
         }
     }
+
+    // MARK: - Reset
+    func reset() {
+        emails = []
+        isLoading = false
+        isLoaded = false
+        isFetchingMore = false
+        hasMore = true
+        error = nil
+        filterTab = .all
+        bookmarkTimestamp = nil
+    }
 }

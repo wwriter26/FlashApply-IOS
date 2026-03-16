@@ -96,6 +96,18 @@ final class JobCardsViewModel: ObservableObject {
     var isEffectivelyLoading: Bool {
         (isLoading || isPrefetching) && jobs.isEmpty
     }
+
+    // MARK: - Reset
+    func reset() {
+        jobs = []
+        isLoading = false
+        isPrefetching = false
+        isLoaded = false
+        error = nil
+        swipesRemaining = nil
+        noSwipesLeft = false
+        seenUrls = []
+    }
 }
 
 // MARK: - Request Bodies

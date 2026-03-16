@@ -98,4 +98,13 @@ final class ProfileViewModel: ObservableObject {
             return nil
         }
     }
+
+    // MARK: - Reset
+    func reset() {
+        profile = UserProfile()
+        isLoaded = false
+        isLoading = false
+        isSaving = false
+        error = nil
+    }
 }

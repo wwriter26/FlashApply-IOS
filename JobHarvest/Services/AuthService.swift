@@ -193,8 +193,8 @@ final class AuthService: ObservableObject {
             AppLogger.auth.debug("isFirstLogin: firstLogin attribute = \(value ?? "nil (not set)")")
             return value != "false"
         } catch {
-            AppLogger.auth.error("isFirstLogin: failed to fetch user attributes — \(error.localizedDescription) — defaulting to false")
-            return false
+            AppLogger.auth.error("isFirstLogin: failed to fetch user attributes — \(error.localizedDescription) — defaulting to true (assume new user)")
+            return true
         }
     }
 

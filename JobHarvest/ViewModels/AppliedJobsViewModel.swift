@@ -166,4 +166,22 @@ final class AppliedJobsViewModel: ObservableObject {
         case .failed:    failed.append(job)
         }
     }
+
+    // MARK: - Reset
+    func reset() {
+        applying = []
+        applied = []
+        screen = []
+        interview = []
+        offer = []
+        archived = []
+        failed = []
+        selectedJob = nil
+        selectedJobLoading = false
+        isLoading = false
+        isLoaded = false
+        error = nil
+        showActiveOnly = true
+        lastFetchedAt = nil
+    }
 }

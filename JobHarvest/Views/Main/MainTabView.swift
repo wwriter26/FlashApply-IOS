@@ -3,11 +3,11 @@ import UIKit
 
 struct MainTabView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var jobCardsVM: JobCardsViewModel
+    @EnvironmentObject var appliedJobsVM: AppliedJobsViewModel
+    @EnvironmentObject var mailboxVM: MailboxViewModel
+    @EnvironmentObject var profileVM: ProfileViewModel
     @State private var selectedTab = 0
-    @StateObject private var jobCardsVM = JobCardsViewModel()
-    @StateObject private var appliedJobsVM = AppliedJobsViewModel()
-    @StateObject private var mailboxVM = MailboxViewModel()
-    @StateObject private var profileVM = ProfileViewModel()
 
     var body: some View {
         TabView(selection: $selectedTab) {
