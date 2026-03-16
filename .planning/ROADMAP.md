@@ -43,7 +43,12 @@ Plans:
   3. The onboarding quiz includes a functional skills/preferences step and requires valid input at each step before advancing
   4. Onboarding data (including resume upload) is saved to the backend and the user reaches the main app on completion
   5. Signing out clears all local state and returns the user to the sign-in screen; signing back in restores their session
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Shared ProfileViewModel, auth routing fixes, Codable decode fix, resume save chain
+- [ ] 02-02-PLAN.md — Onboarding quiz: skills tag picker, shared VM wiring, UserDefaults persistence, validation
+- [ ] 02-03-PLAN.md — Human verification of full auth and onboarding flow on simulator
 
 ### Phase 3: Feature Polish
 **Goal**: Every feature tab works end-to-end against the dev backend with polished animations, friendly error messages, and no blank screens
@@ -76,6 +81,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Connectivity | 1/1 | Complete   | 2026-03-12 |
-| 2. Auth and Profile Foundation | 0/TBD | Not started | - |
+| 2. Auth and Profile Foundation | 0/3 | Not started | - |
 | 3. Feature Polish | 0/TBD | Not started | - |
 | 4. Hardening | 0/TBD | Not started | - |
