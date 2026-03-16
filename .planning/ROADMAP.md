@@ -81,6 +81,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Connectivity | 1/1 | Complete   | 2026-03-12 |
-| 2. Auth and Profile Foundation | 0/3 | Not started | - |
+| 2. Auth and Profile Foundation | 1/3 | In Progress|  |
 | 3. Feature Polish | 0/TBD | Not started | - |
 | 4. Hardening | 0/TBD | Not started | - |

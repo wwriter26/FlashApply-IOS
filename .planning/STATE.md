@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-16T03:25:01.767Z"
+stopped_at: Completed 02-auth-and-profile-foundation 02-01-PLAN.md
+last_updated: "2026-03-16T04:00:56.836Z"
 last_activity: 2026-03-11 — Roadmap created; requirements mapped to 4 phases
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 4
+  completed_plans: 2
   percent: 100
 ---
 
@@ -51,6 +51,7 @@ Progress: [██████████] 100%
 
 *Updated after each plan completion*
 | Phase 01-connectivity P01 | 3 | 2 tasks | 5 files |
+| Phase 02-auth-and-profile-foundation P01 | 15m | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,8 @@ Recent decisions affecting current work:
 - [Phase 01-connectivity]: Use $() xcconfig URL-escaping trick to prevent Xcode stripping // in API_DOMAIN value
 - [Phase 01-connectivity]: Crash-loudly in DEBUG for misconfigured API_DOMAIN — silent fallback to production causes hard-to-debug 403 errors
 - [Phase 01-connectivity]: Keep Config.xcconfig and amplifyconfiguration.json tracked by git — no secrets; templates serve as developer documentation
+- [Phase 02-auth-and-profile-foundation]: Used global convertFromSnakeCase decoder strategy — safe because camelCase JSON keys pass through unchanged; explicit CodingKeys take precedence
+- [Phase 02-auth-and-profile-foundation]: Post-onboarding loading transition uses Task.sleep(1.5s) before showing MainTabView to avoid jarring instant switch
 
 ### Pending Todos
 
@@ -78,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16T03:25:01.758Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-auth-and-profile-foundation/02-CONTEXT.md
+Last session: 2026-03-16T04:00:56.834Z
+Stopped at: Completed 02-auth-and-profile-foundation 02-01-PLAN.md
+Resume file: None

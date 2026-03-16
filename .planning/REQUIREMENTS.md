@@ -14,11 +14,11 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can sign in with existing account and reach the main app
-- [ ] **AUTH-02**: New user is correctly routed to onboarding quiz (not skipped on network error)
-- [ ] **AUTH-03**: Returning user bypasses onboarding and goes directly to main tabs
-- [ ] **AUTH-04**: User session persists across app restarts
-- [ ] **AUTH-05**: Sign-out clears all local state and returns user to sign-in screen
+- [x] **AUTH-01**: User can sign in with existing account and reach the main app
+- [x] **AUTH-02**: New user is correctly routed to onboarding quiz (not skipped on network error)
+- [x] **AUTH-03**: Returning user bypasses onboarding and goes directly to main tabs
+- [x] **AUTH-04**: User session persists across app restarts
+- [x] **AUTH-05**: Sign-out clears all local state and returns user to sign-in screen
 
 ### Onboarding
 
@@ -111,11 +111,11 @@
 | CONN-02 | Phase 1 | Complete |
 | CONN-03 | Phase 1 | Complete |
 | CONN-04 | Phase 1 | Complete |
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
-| AUTH-04 | Phase 2 | Pending |
-| AUTH-05 | Phase 2 | Pending |
+| AUTH-01 | Phase 2 | Complete |
+| AUTH-02 | Phase 2 | Complete |
+| AUTH-03 | Phase 2 | Complete |
+| AUTH-04 | Phase 2 | Complete |
+| AUTH-05 | Phase 2 | Complete |
 | ONBD-01 | Phase 2 | Pending |
 | ONBD-02 | Phase 2 | Pending |
 | ONBD-03 | Phase 2 | Pending |
