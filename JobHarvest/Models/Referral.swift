@@ -11,7 +11,7 @@ struct ReferralData: Codable {
 }
 
 struct ReferralEntry: Codable, Identifiable {
-    var id: String { userId ?? UUID().uuidString }
+    var id: String { userId ?? email ?? name ?? "unknown" }
     let userId: String?
     let email: String?
     let name: String?
@@ -30,7 +30,7 @@ struct PayoutHistory: Codable {
 }
 
 struct PayoutEntry: Codable, Identifiable {
-    var id: String { payoutId ?? UUID().uuidString }
+    var id: String { payoutId ?? "\(amount ?? 0)-\(requestedDate ?? "unknown")" }
     let payoutId: String?
     let amount: Double?
     let method: String?

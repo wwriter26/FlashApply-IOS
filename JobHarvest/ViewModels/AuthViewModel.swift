@@ -48,6 +48,7 @@ final class AuthViewModel: ObservableObject {
             try await auth.signIn(email: email, password: password)
             await checkAuthState()
         } catch {
+            AppLogger.auth.error("signIn failed: \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
         isLoading = false
@@ -59,15 +60,24 @@ final class AuthViewModel: ObservableObject {
         error = nil
         do {
             try await auth.signUp(email: email, password: password, name: name)
-            // After signup, call handleNewUser to send welcome email
+
+            // Create user record in database
             let parts = name.split(separator: " ")
             let first = parts.first.map(String.init) ?? name
             let last = parts.dropFirst().joined(separator: " ")
             let body: [String: String] = ["email": email, "firstName": first, "lastName": last]
-            let _: MessageResponse = (try? await network.unauthenticatedRequest("/handleNewUser", method: "POST", body: body)) ?? MessageResponse(message: nil, success: nil)
+            AppLogger.auth.debug("signUp: calling /handleNewUser for \(email)")
+            do {
+                let response: MessageResponse = try await network.unauthenticatedRequest("/handleNewUser", method: "POST", body: body)
+                AppLogger.auth.info("signUp: /handleNewUser success — \(response.message ?? "no message")")
+            } catch {
+                AppLogger.auth.error("signUp: /handleNewUser FAILED — \(error.localizedDescription) — user may not exist in database")
+            }
+
             isLoading = false
             return true
         } catch {
+            AppLogger.auth.error("signUp: Cognito signup failed — \(error.localizedDescription)")
             self.error = error.localizedDescription
             isLoading = false
             return false
@@ -80,9 +90,11 @@ final class AuthViewModel: ObservableObject {
         error = nil
         do {
             try await auth.confirmSignUp(email: email, code: code)
+            AppLogger.auth.info("confirmSignUp: email verified for \(email)")
             isLoading = false
             return true
         } catch {
+            AppLogger.auth.error("confirmSignUp failed: \(error.localizedDescription)")
             self.error = error.localizedDescription
             isLoading = false
             return false
@@ -101,6 +113,19 @@ final class AuthViewModel: ObservableObject {
         userId = ""
         email = ""
         isLoaded = true
+    }
+
+    // MARK: - Resend Sign Up Code
+    func resendSignUpCode(email: String) async {
+        isLoading = true
+        error = nil
+        do {
+            try await auth.resendSignUpCode(email: email)
+            isLoading = false
+        } catch {
+            self.error = error.localizedDescription
+            isLoading = false
+        }
     }
 
     // MARK: - Forgot Password
@@ -140,6 +165,7 @@ final class AuthViewModel: ObservableObject {
             try await auth.signInWithApple()
             await checkAuthState()
         } catch {
+            AppLogger.auth.error("signInWithApple failed: \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
         isLoading = false
@@ -152,6 +178,7 @@ final class AuthViewModel: ObservableObject {
             try await auth.signInWithGoogle()
             await checkAuthState()
         } catch {
+            AppLogger.auth.error("signInWithGoogle failed: \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
         isLoading = false
@@ -159,7 +186,12 @@ final class AuthViewModel: ObservableObject {
 
     // MARK: - Mark onboarding complete
     func markOnboardingComplete() async {
-        try? await auth.setFirstLoginFalse()
+        do {
+            try await auth.setFirstLoginFalse()
+            AppLogger.auth.info("markOnboardingComplete: firstLogin set to false")
+        } catch {
+            AppLogger.auth.error("markOnboardingComplete: failed to update firstLogin attribute — \(error.localizedDescription)")
+        }
         isNewUser = false
     }
 }

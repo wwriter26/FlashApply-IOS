@@ -1,8 +1,10 @@
 import Foundation
 import Combine
+import os
 
 @MainActor
 final class ReferralViewModel: ObservableObject {
+    nonisolated init() {}
     @Published var referralData: ReferralData?
     @Published var isLoading = false
     @Published var isLoaded = false
@@ -15,11 +17,14 @@ final class ReferralViewModel: ObservableObject {
     func fetchReferralData() async {
         isLoading = true
         error = nil
+        AppLogger.referral.debug("fetchReferralData: loading")
         do {
             let response: ReferralData = try await network.request("/getReferral")
             referralData = response
             isLoaded = true
+            AppLogger.referral.info("fetchReferralData: success — code = \(response.referralCode ?? "nil")")
         } catch {
+            AppLogger.referral.error("fetchReferralData: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
         isLoading = false
@@ -29,11 +34,14 @@ final class ReferralViewModel: ObservableObject {
     func requestPayout(method: String, details: [String: String]) async {
         isLoading = true
         error = nil
+        AppLogger.referral.debug("requestPayout: method = \(method)")
         do {
             let body = PayoutRequest(payoutMethod: method, payload: details)
             let _: MessageResponse = try await network.request("/requestPayout", method: "POST", body: body)
             payoutSuccess = true
+            AppLogger.referral.info("requestPayout: success via \(method)")
         } catch {
+            AppLogger.referral.error("requestPayout: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
         isLoading = false

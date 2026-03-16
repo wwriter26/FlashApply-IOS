@@ -40,18 +40,25 @@ final class NetworkService {
         method: String = "GET",
         body: Encodable? = nil
     ) async throws -> T {
-        let idToken = try await AuthService.shared.getIdToken()
-        let identityId = try await AuthService.shared.getIdentityId()
-        return try await performRequest(
-            endpoint: endpoint,
-            method: method,
-            body: body,
-            headers: [
-                "Authorization": "Bearer \(idToken)",
-                "X-Cognito-Identity-Id": identityId,
-                "Content-Type": "application/json"
-            ]
-        )
+        AppLogger.network.debug("[\(method)] \(self.baseURL)\(endpoint) — fetching auth tokens")
+        do {
+            let idToken = try await AuthService.shared.getIdToken()
+            #if DEBUG
+            AppLogger.network.debug("Token (first 50 chars): \(String(idToken.prefix(50)))...")
+            #endif
+            return try await performRequest(
+                endpoint: endpoint,
+                method: method,
+                body: body,
+                headers: [
+                    "Authorization": "Bearer \(idToken)",
+                    "Content-Type": "application/json"
+                ]
+            )
+        } catch let authErr as AuthError {
+            AppLogger.network.error("[\(method)] \(endpoint) — auth token error: \(authErr.localizedDescription)")
+            throw authErr
+        }
     }
 
     // MARK: - Unauthenticated Request
@@ -60,7 +67,8 @@ final class NetworkService {
         method: String = "POST",
         body: Encodable? = nil
     ) async throws -> T {
-        try await performRequest(
+        AppLogger.network.debug("[\(method)] \(self.baseURL)\(endpoint) — unauthenticated")
+        return try await performRequest(
             endpoint: endpoint,
             method: method,
             body: body,
@@ -73,19 +81,26 @@ final class NetworkService {
         _ endpoint: String,
         params: [String: String]
     ) async throws -> T {
-        let idToken = try await AuthService.shared.getIdToken()
-        let identityId = try await AuthService.shared.getIdentityId()
+        AppLogger.network.debug("[GET] \(self.baseURL)\(endpoint) — params: \(params.keys.joined(separator: ", "))")
+        do {
+            let idToken = try await AuthService.shared.getIdToken()
 
-        var components = URLComponents(string: baseURL + endpoint)
-        components?.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
-        guard let url = components?.url else { throw NetworkError.invalidURL }
+            var components = URLComponents(string: baseURL + endpoint)
+            components?.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
+            guard let url = components?.url else {
+                AppLogger.network.error("[GET] \(endpoint) — invalid URL after building query params")
+                throw NetworkError.invalidURL
+            }
 
-        var req = URLRequest(url: url)
-        req.httpMethod = "GET"
-        req.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
-        req.setValue(identityId, forHTTPHeaderField: "X-Cognito-Identity-Id")
+            var req = URLRequest(url: url)
+            req.httpMethod = "GET"
+            req.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
 
-        return try await execute(req)
+            return try await execute(req)
+        } catch let authErr as AuthError {
+            AppLogger.network.error("[GET] \(endpoint) — auth token error: \(authErr.localizedDescription)")
+            throw authErr
+        }
     }
 
     // MARK: - Private Execute
@@ -96,6 +111,7 @@ final class NetworkService {
         headers: [String: String]
     ) async throws -> T {
         guard let url = URL(string: baseURL + endpoint) else {
+            AppLogger.network.error("[\(method)] \(self.baseURL)\(endpoint) — could not construct URL (check API_DOMAIN in Config.xcconfig)")
             throw NetworkError.invalidURL
         }
         var req = URLRequest(url: url)
@@ -106,29 +122,43 @@ final class NetworkService {
         if let body = body {
             req.httpBody = try JSONEncoder().encode(body)
         }
+        #if DEBUG
+        AppLogger.network.debug("[\(method)] \(url.absoluteString) — outgoing headers: \(headers.map { "\($0.key): \($0.key == "Authorization" ? String($0.value.prefix(40)) + "..." : $0.value)" }.joined(separator: ", "))")
+        #endif
         return try await execute(req)
     }
 
     private func execute<T: Decodable>(_ request: URLRequest) async throws -> T {
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse else {
-            throw NetworkError.noData
-        }
-        AppLogger.network.debug("[\(request.httpMethod ?? "GET")] \(request.url?.path ?? "") → \(http.statusCode)")
-
-        switch http.statusCode {
-        case 200...299:
-            do {
-                return try JSONDecoder().decode(T.self, from: data)
-            } catch {
-                AppLogger.network.error("Decode error: \(error)")
-                throw NetworkError.decodingFailed(error)
+        let fullURL = request.url?.absoluteString ?? "unknown"
+        do {
+            let (data, response) = try await session.data(for: request)
+            guard let http = response as? HTTPURLResponse else {
+                AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) — response was not HTTP")
+                throw NetworkError.noData
             }
-        case 401, 403:
-            throw NetworkError.unauthorized
-        default:
-            let message = String(data: data, encoding: .utf8)
-            throw NetworkError.serverError(http.statusCode, message)
+            AppLogger.network.debug("[\(request.httpMethod ?? "GET")] \(fullURL) → \(http.statusCode)")
+
+            switch http.statusCode {
+            case 200...299:
+                do {
+                    return try JSONDecoder().decode(T.self, from: data)
+                } catch {
+                    let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+                    AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) — decode error: \(error) | raw: \(raw)")
+                    throw NetworkError.decodingFailed(error)
+                }
+            case 401, 403:
+                let body = String(data: data, encoding: .utf8) ?? ""
+                AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) → \(http.statusCode) unauthorized — \(body)")
+                throw NetworkError.unauthorized
+            default:
+                let message = String(data: data, encoding: .utf8)
+                AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) → \(http.statusCode) — \(message ?? "no body")")
+                throw NetworkError.serverError(http.statusCode, message)
+            }
+        } catch let urlError as URLError {
+            AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) — connection error: \(urlError.localizedDescription) (code: \(urlError.code.rawValue))")
+            throw urlError
         }
     }
 
@@ -138,14 +168,26 @@ final class NetworkService {
         data: Data,
         mimeType: String
     ) async throws {
-        guard let url = URL(string: presignedURL) else { throw NetworkError.invalidURL }
+        guard let url = URL(string: presignedURL) else {
+            AppLogger.files.error("[PUT] S3 upload — invalid presigned URL")
+            throw NetworkError.invalidURL
+        }
+        AppLogger.files.debug("[PUT] S3 upload — \(data.count) bytes, mimeType: \(mimeType)")
         var req = URLRequest(url: url)
         req.httpMethod = "PUT"
         req.setValue(mimeType, forHTTPHeaderField: "Content-Type")
         req.httpBody = data
-        let (_, response) = try await session.data(for: req)
-        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw NetworkError.serverError((response as? HTTPURLResponse)?.statusCode ?? 0, "Upload failed")
+        do {
+            let (_, response) = try await session.data(for: req)
+            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                AppLogger.files.error("[PUT] S3 upload → \(statusCode) failed")
+                throw NetworkError.serverError(statusCode, "Upload failed")
+            }
+            AppLogger.files.info("[PUT] S3 upload → \((response as? HTTPURLResponse)?.statusCode ?? 0) success")
+        } catch let urlError as URLError {
+            AppLogger.files.error("[PUT] S3 upload — connection error: \(urlError.localizedDescription)")
+            throw urlError
         }
     }
 }

@@ -4,6 +4,7 @@ import os
 
 @MainActor
 final class AppliedJobsViewModel: ObservableObject {
+    nonisolated init() {}
     @Published var applying: [AppliedJob] = []
     @Published var applied: [AppliedJob] = []
     @Published var screen: [AppliedJob] = []
@@ -28,12 +29,22 @@ final class AppliedJobsViewModel: ObservableObject {
     func fetchAppliedJobs() async {
         isLoading = true
         error = nil
+        AppLogger.jobs.debug("fetchAppliedJobs: loading pipeline")
         do {
             let response: AppliedJobsResponse = try await network.request("/getAppliedJobs")
             applyResponse(response)
             isLoaded = true
             lastFetchedAt = Date()
+            let applying = response.applying?.count ?? 0
+            let applied = response.applied?.count ?? 0
+            let screen = response.screen?.count ?? 0
+            let interview = response.interview?.count ?? 0
+            let offer = response.offer?.count ?? 0
+            
+            let total: Int = applying + applied + screen + interview + offer
+            AppLogger.jobs.info("fetchAppliedJobs: loaded \(total) active jobs across pipeline")
         } catch {
+            AppLogger.jobs.error("fetchAppliedJobs: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
         isLoading = false
@@ -106,10 +117,6 @@ final class AppliedJobsViewModel: ObservableObject {
             let req = DetailRequest(jobUrl: jobUrl, companyId: companyId)
             let detail: JobDetailResponse = try await network.request("/getJobDetails", method: "POST", body: req)
 
-            // Merge details into selectedJob
-            if let idx = jobs(for: selectedJob?.stage ?? .applied).firstIndex(where: { $0.jobUrl == jobUrl }) {
-                _ = idx // detail applied via selectedJob update below
-            }
             if var job = selectedJob {
                 job.jobDescription = detail.jobDescription
                 job.jobDescriptionHTML = detail.jobDescriptionHTML

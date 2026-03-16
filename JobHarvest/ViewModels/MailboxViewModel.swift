@@ -4,6 +4,7 @@ import os
 
 @MainActor
 final class MailboxViewModel: ObservableObject {
+    nonisolated init() {}
     @Published var emails: [Email] = []
     @Published var isLoading = false
     @Published var isLoaded = false
@@ -36,6 +37,7 @@ final class MailboxViewModel: ObservableObject {
         isLoading = true
         error = nil
         bookmarkTimestamp = nil
+        AppLogger.network.debug("fetchEmails: loading mailbox")
         do {
             let body: [String: String?] = ["bookmarkTimestamp": nil]
             let response: BasicEmailDataResponse = try await network.request(
@@ -47,7 +49,9 @@ final class MailboxViewModel: ObservableObject {
             bookmarkTimestamp = response.bookmarkTimestamp
             hasMore = response.hasMore ?? false
             isLoaded = true
+            AppLogger.network.info("fetchEmails: loaded \(self.emails.count) emails, hasMore=\(self.hasMore)")
         } catch {
+            AppLogger.network.error("fetchEmails: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
         isLoading = false
@@ -57,6 +61,7 @@ final class MailboxViewModel: ObservableObject {
     func loadMore() async {
         guard hasMore, !isFetchingMore, let bookmark = bookmarkTimestamp else { return }
         isFetchingMore = true
+        AppLogger.network.debug("loadMore: fetching next page (bookmark: \(bookmark))")
         do {
             let body = ["bookmarkTimestamp": bookmark]
             let response: BasicEmailDataResponse = try await network.request(
@@ -64,10 +69,13 @@ final class MailboxViewModel: ObservableObject {
                 method: "POST",
                 body: body
             )
+            let newCount = response.emails?.count ?? 0
             emails.append(contentsOf: response.emails ?? [])
             bookmarkTimestamp = response.bookmarkTimestamp
             hasMore = response.hasMore ?? false
+            AppLogger.network.info("loadMore: appended \(newCount) emails, hasMore=\(self.hasMore)")
         } catch {
+            AppLogger.network.error("loadMore: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
         isFetchingMore = false

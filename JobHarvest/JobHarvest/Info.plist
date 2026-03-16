@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>API_DOMAIN</key>
+	<string>$(API_DOMAIN)</string>
+	<key>STRIPE_KEY</key>
+	<string>$(STRIPE_KEY)</string>
+	<key>BUCKET_NAME</key>
+	<string>$(BUCKET_NAME)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

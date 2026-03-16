@@ -21,6 +21,7 @@ struct PreferencesQuizView: View {
     @State private var resumeData: Data?
     @State private var resumeFileName = ""
     @State private var showDocumentPicker = false
+    @State private var showSkipConfirm = false
 
     private let totalSteps = 5
     private let workAuthOptions = ["US Citizen", "Green Card", "H-1B Visa", "OPT/CPT", "Other"]
@@ -51,6 +52,22 @@ struct PreferencesQuizView: View {
             .navigationTitle("Set Up Your Profile")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Skip") {
+                        showSkipConfirm = true
+                    }
+                    .foregroundColor(.flashTextSecondary)
+                }
+            }
+            .confirmationDialog("Skip Profile Setup?", isPresented: $showSkipConfirm, titleVisibility: .visible) {
+                Button("Skip for Now") {
+                    Task { await authVM.markOnboardingComplete() }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("You'll need to upload a resume before you can start swiping on jobs. You can complete your profile anytime from the Profile tab.")
+            }
         }
         .sheet(isPresented: $showDocumentPicker) {
             DocumentPickerView(allowedTypes: [.pdf]) { url in
@@ -242,9 +259,8 @@ struct PreferencesQuizView: View {
         Task {
             do {
                 // Upload resume
-                var resumeKey: String? = nil
                 if let data = resumeData, !resumeFileName.isEmpty {
-                    resumeKey = try await FileUploadService.shared.uploadResume(data: data, fileName: resumeFileName)
+                    try await FileUploadService.shared.uploadResume(data: data, fileName: resumeFileName)
                 }
 
                 // Build profile patch
@@ -254,7 +270,7 @@ struct PreferencesQuizView: View {
                 profile.phone = phone
                 profile.workAuthorization = workAuth
                 profile.sponsorship = requiresSponsorship
-                profile.resumeFileName = resumeKey ?? resumeFileName
+                profile.resumeFileName = resumeFileName.isEmpty ? nil : resumeFileName
                 profile.jobPreferences = JobPreferences(jobTypes: jobTypes, remoteOnly: remoteOnly)
 
                 try await profileVM.updateProfile(profile)
@@ -305,9 +321,9 @@ struct DocumentPickerView: UIViewControllerRepresentable {
 
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
             guard let url = urls.first else { return }
-            _ = url.startAccessingSecurityScopedResource()
+            guard url.startAccessingSecurityScopedResource() else { return }
+            defer { url.stopAccessingSecurityScopedResource() }
             completion(url)
-            url.stopAccessingSecurityScopedResource()
         }
     }
 }

@@ -10,7 +10,7 @@
 // Use the dev domain for all local development and testing.
 // Note: Use https://$()/domain.com syntax — $() escapes the double-slash in xcconfig files.
 // DO NOT write https://domain.com directly; Xcode will strip everything after //.
-API_DOMAIN = https://$()/dev.jobharvest-api.com
+API_DOMAIN = https://$()/dev.jobharvest-api.com/v1
 
 // Stripe publishable key — obtain from Stripe Dashboard > Developers > API Keys.
 // Use a test key (pk_test_...) for development.

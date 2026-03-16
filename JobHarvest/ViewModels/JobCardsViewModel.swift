@@ -24,26 +24,19 @@ final class JobCardsViewModel: ObservableObject {
         error = nil
 
         do {
-            var body: [String: Any] = [:]
-            if let industry = filters.jobIndustry { body["jobIndustry"] = industry }
-            if let state = filters.locationState { body["location"] = ["state": state] }
-            if let types = filters.jobType { body["jobType"] = types }
-            if let minSal = filters.minimumSalary { body["minimumSalary"] = minSal }
-            if let posted = filters.postedAfterTimestamp { body["postedAfterTimestamp"] = posted }
-            if let company = filters.companyKey { body["companyKey"] = company }
-            if !seenUrls.isEmpty { body["exclude"] = Array(seenUrls) }
+            var params: [String: String] = [:]
+            if let jobIndustry = filters.jobIndustry { params["jobIndustry"] = jobIndustry }
+            if let locationState = filters.locationState { params["locationState"] = locationState }
+            if let jobType = filters.jobType, !jobType.isEmpty { params["jobType"] = jobType.joined(separator: ",") }
+            if let minimumSalary = filters.minimumSalary { params["minimumSalary"] = String(minimumSalary) }
+            if let postedAfterTimestamp = filters.postedAfterTimestamp { params["postedAfterTimestamp"] = postedAfterTimestamp }
+            if let companyKey = filters.companyKey { params["companyId"] = companyKey }
+            if let fromDB = filters.fromDB { params["fromDB"] = fromDB ? "true" : "false" }
+            if !seenUrls.isEmpty { params["exclude"] = seenUrls.joined(separator: ",") }
 
-            let bodyData = try JSONSerialization.data(withJSONObject: body)
-
-            struct GenericBody: Encodable {
-                let data: Data
-                func encode(to encoder: Encoder) throws { /* passthrough */ }
-            }
-
-            let response: FetchJobsResponse = try await network.request(
+            let response: FetchJobsResponse = try await network.requestWithParams(
                 "/users/\(try await AuthService.shared.getCurrentUserId())/jobs",
-                method: "POST",
-                body: RawBody(data: bodyData)
+                params: params
             )
 
             let newJobs = response.resolvedJobs
@@ -55,10 +48,13 @@ final class JobCardsViewModel: ObservableObject {
                 jobs = newJobs
             }
             isLoaded = true
-        } catch let netErr as NetworkError where netErr.errorDescription?.contains("403") == true || netErr.errorDescription?.contains("No swipes") == true {
+            AppLogger.jobs.info("fetchJobs: received \(newJobs.count) jobs (appending: \(appending), total deck: \(self.jobs.count))")
+        } catch NetworkError.serverError(403, _) {
+            AppLogger.jobs.info("fetchJobs: no swipes remaining (403)")
             noSwipesLeft = true
             isLoaded = true
         } catch {
+            AppLogger.jobs.error("fetchJobs: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription
         }
 
@@ -77,7 +73,6 @@ final class JobCardsViewModel: ObservableObject {
         }
 
         do {
-            let userId = try await AuthService.shared.getCurrentUserId()
             let body = SwipeRequestBody(
                 jobUrl: job.jobUrl,
                 isAccepting: isAccepting,
@@ -103,17 +98,10 @@ final class JobCardsViewModel: ObservableObject {
     }
 }
 
-// MARK: - Helpers
+// MARK: - Request Bodies
 private struct SwipeRequestBody: Encodable {
     let jobUrl: String
     let isAccepting: Bool
     let manualUserAnswers: [String: String]?
 }
 
-struct RawBody: Encodable {
-    let data: Data
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(String(data: data, encoding: .utf8) ?? "{}")
-    }
-}

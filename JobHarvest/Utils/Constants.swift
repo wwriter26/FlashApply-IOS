@@ -8,7 +8,7 @@ enum AppConfig {
             #if DEBUG
             fatalError("API_DOMAIN is missing or empty in Config.xcconfig / Info.plist. Copy Config.xcconfig.template to Config.xcconfig and set API_DOMAIN.")
             #else
-            return "https://jobharvest-api.com"
+            return "https://jobharvest-api.com/v1"
             #endif
         }
         return value.hasPrefix("http") ? value : "https://\(value)"

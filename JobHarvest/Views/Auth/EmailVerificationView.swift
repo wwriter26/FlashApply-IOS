@@ -54,7 +54,7 @@ struct EmailVerificationView: View {
                 .disabled(code.count < 6 || authVM.isLoading)
 
                 Button("Resend Code") {
-                    Task { await authVM.forgotPassword(email: email) }
+                    Task { await authVM.resendSignUpCode(email: email) }
                 }
                 .foregroundColor(.flashTeal)
                 .font(.subheadline)

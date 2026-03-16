@@ -5,6 +5,7 @@ import Amplify
 // Central auth-gated navigation. Mirrors the React Hub.listen pattern.
 struct AppRouter: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @State private var hubToken: UnsubscribeToken?
 
     var body: some View {
         Group {
@@ -24,11 +25,16 @@ struct AppRouter: View {
             await authVM.checkAuthState()
             listenToAuthEvents()
         }
+        .onDisappear {
+            if let token = hubToken {
+                Amplify.Hub.removeListener(token)
+            }
+        }
     }
 
     // MARK: - Amplify Hub Listener
     private func listenToAuthEvents() {
-        _ = Amplify.Hub.listen(to: .auth) { payload in
+        hubToken = Amplify.Hub.listen(to: .auth) { payload in
             switch payload.eventName {
             case HubPayload.EventName.Auth.signedIn:
                 Task { @MainActor in
