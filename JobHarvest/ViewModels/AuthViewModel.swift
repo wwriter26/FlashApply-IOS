@@ -113,6 +113,8 @@ final class AuthViewModel: ObservableObject {
         userId = ""
         email = ""
         isLoaded = true
+        // Clear onboarding quiz cached state
+        PreferencesQuizView.clearSavedQuizState()
     }
 
     // MARK: - Resend Sign Up Code
