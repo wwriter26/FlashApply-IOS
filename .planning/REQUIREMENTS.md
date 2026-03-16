@@ -22,11 +22,11 @@
 
 ### Onboarding
 
-- [ ] **ONBD-01**: Onboarding walkthrough collects all required fields: name, phone, work authorization, job type preferences, resume upload
-- [ ] **ONBD-02**: Skills/preferences step is present and functional in the quiz (currently dead state variable)
-- [ ] **ONBD-03**: Onboarding data is successfully saved to backend on completion
-- [ ] **ONBD-04**: Progress is preserved if user backgrounds the app mid-quiz
-- [ ] **ONBD-05**: Each quiz step has clear validation — user cannot advance with invalid input
+- [x] **ONBD-01**: Onboarding walkthrough collects all required fields: name, phone, work authorization, job type preferences, resume upload
+- [x] **ONBD-02**: Skills/preferences step is present and functional in the quiz (currently dead state variable)
+- [x] **ONBD-03**: Onboarding data is successfully saved to backend on completion
+- [x] **ONBD-04**: Progress is preserved if user backgrounds the app mid-quiz
+- [x] **ONBD-05**: Each quiz step has clear validation — user cannot advance with invalid input
 
 ### Profile
 
@@ -116,11 +116,11 @@
 | AUTH-03 | Phase 2 | Complete |
 | AUTH-04 | Phase 2 | Complete |
 | AUTH-05 | Phase 2 | Complete |
-| ONBD-01 | Phase 2 | Pending |
-| ONBD-02 | Phase 2 | Pending |
-| ONBD-03 | Phase 2 | Pending |
-| ONBD-04 | Phase 2 | Pending |
-| ONBD-05 | Phase 2 | Pending |
+| ONBD-01 | Phase 2 | Complete |
+| ONBD-02 | Phase 2 | Complete |
+| ONBD-03 | Phase 2 | Complete |
+| ONBD-04 | Phase 2 | Complete |
+| ONBD-05 | Phase 2 | Complete |
 | PROF-01 | Phase 3 | Pending |
 | PROF-02 | Phase 3 | Pending |
 | PROF-03 | Phase 3 | Pending |
