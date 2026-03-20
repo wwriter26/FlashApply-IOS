@@ -68,11 +68,15 @@ struct LocationData: Codable {
 }
 
 struct ManualInputField: Codable, Identifiable {
-    var id: String { fieldKey }
-    let fieldKey: String
-    let fieldLabel: String
-    let fieldType: String   // "text", "select", "textarea", "boolean"
+    var id: String { fieldKey ?? classification ?? label ?? UUID().uuidString }
+    let fieldKey: String?
+    let fieldLabel: String?
+    let fieldType: String?
+    let label: String?
+    let classification: String?
+    let selectOptions: [String]?
     let options: [String]?
+    let value: String?
     let required: Bool?
 }
 

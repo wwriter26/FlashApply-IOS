@@ -7,8 +7,23 @@ struct ManualAnswersSheet: View {
     @State private var answers: [String: String] = [:]
     @Environment(\.dismiss) private var dismiss
 
+    // Use fieldKey if available, fall back to classification (backend sends either)
+    private func key(for field: ManualInputField) -> String {
+        field.fieldKey ?? field.classification ?? field.id
+    }
+
+    // Use fieldLabel if available, fall back to label
+    private func displayLabel(for field: ManualInputField) -> String {
+        field.fieldLabel ?? field.label ?? "Question"
+    }
+
+    // Use options or selectOptions
+    private func allOptions(for field: ManualInputField) -> [String]? {
+        field.options ?? field.selectOptions
+    }
+
     var allRequiredFilled: Bool {
-        fields.filter { $0.required == true }.allSatisfy { !(answers[$0.fieldKey]?.isEmpty ?? true) }
+        fields.filter { $0.required == true }.allSatisfy { !(answers[key(for: $0)]?.isEmpty ?? true) }
     }
 
     var body: some View {
@@ -47,9 +62,11 @@ struct ManualAnswersSheet: View {
 
     @ViewBuilder
     private func fieldView(_ field: ManualInputField) -> some View {
+        let fieldId = key(for: field)
+        let label = displayLabel(for: field)
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(field.fieldLabel)
+                Text(label)
                     .font(.subheadline.weight(.medium))
                 if field.required == true {
                     Text("*").foregroundColor(.red)
@@ -58,10 +75,10 @@ struct ManualAnswersSheet: View {
 
             switch field.fieldType {
             case "select":
-                if let options = field.options {
-                    Picker(field.fieldLabel, selection: Binding(
-                        get: { answers[field.fieldKey] ?? "" },
-                        set: { answers[field.fieldKey] = $0 }
+                if let options = allOptions(for: field) {
+                    Picker(label, selection: Binding(
+                        get: { answers[fieldId] ?? "" },
+                        set: { answers[fieldId] = $0 }
                     )) {
                         Text("Select...").tag("")
                         ForEach(options, id: \.self) { opt in
@@ -73,23 +90,23 @@ struct ManualAnswersSheet: View {
 
             case "boolean":
                 Toggle("Yes", isOn: Binding(
-                    get: { answers[field.fieldKey] == "true" },
-                    set: { answers[field.fieldKey] = $0 ? "true" : "false" }
+                    get: { answers[fieldId] == "true" },
+                    set: { answers[fieldId] = $0 ? "true" : "false" }
                 ))
                 .tint(.flashTeal)
 
             case "textarea":
                 TextEditor(text: Binding(
-                    get: { answers[field.fieldKey] ?? "" },
-                    set: { answers[field.fieldKey] = $0 }
+                    get: { answers[fieldId] ?? "" },
+                    set: { answers[fieldId] = $0 }
                 ))
                 .frame(height: 100)
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.gray.opacity(0.3)))
 
-            default: // "text"
+            default: // "text" or nil
                 TextField("Enter answer...", text: Binding(
-                    get: { answers[field.fieldKey] ?? "" },
-                    set: { answers[field.fieldKey] = $0 }
+                    get: { answers[fieldId] ?? "" },
+                    set: { answers[fieldId] = $0 }
                 ))
             }
         }
