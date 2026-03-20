@@ -77,7 +77,10 @@ struct UserProfile: Codable {
     var plan: String?
     var stripeCustomerId: String?
 
-    // Backend-specific fields we need to accept but may not display
+    // Backend-managed job tracking fields — decode only, NEVER send back.
+    // These are DynamoDB String Sets managed by moveJob/acceptJob/rejectJob.
+    // Sending null via profile update converts them from SS to NULL type,
+    // which breaks moveJob's ADD/DELETE Set operations.
     var acceptedJobs: AnyCodable?
     var appliedJobs: AnyCodable?
 
@@ -99,6 +102,52 @@ struct UserProfile: Codable {
         case eeo, disabilityStatus, gender, ethnicity, veteranStatus
         case referralCode, plan, stripeCustomerId
         case acceptedJobs, appliedJobs
+    }
+
+    // Custom encode: exclude job-tracking fields that the backend manages
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(firstName, forKey: .firstName)
+        try container.encodeIfPresent(lastName, forKey: .lastName)
+        try container.encodeIfPresent(email, forKey: .email)
+        try container.encodeIfPresent(phone, forKey: .phone)
+        try container.encodeIfPresent(workAuthorization, forKey: .workAuthorization)
+        try container.encodeIfPresent(sponsorship, forKey: .sponsorship)
+        try container.encodeIfPresent(address, forKey: .address)
+        try container.encodeIfPresent(street, forKey: .street)
+        try container.encodeIfPresent(city, forKey: .city)
+        try container.encodeIfPresent(state, forKey: .state)
+        try container.encodeIfPresent(zipCode, forKey: .zipCode)
+        try container.encodeIfPresent(country, forKey: .country)
+        try container.encodeIfPresent(countryOfResidence, forKey: .countryOfResidence)
+        try container.encodeIfPresent(workHistory, forKey: .workHistory)
+        try container.encodeIfPresent(educationHistory, forKey: .educationHistory)
+        try container.encodeIfPresent(skills, forKey: .skills)
+        try container.encodeIfPresent(certifications, forKey: .certifications)
+        try container.encodeIfPresent(additionalInformation, forKey: .additionalInformation)
+        try container.encodeIfPresent(careerSummaryHeadline, forKey: .careerSummaryHeadline)
+        try container.encodeIfPresent(linkedIn, forKey: .linkedIn)
+        try container.encodeIfPresent(github, forKey: .github)
+        try container.encodeIfPresent(portfolio, forKey: .portfolio)
+        try container.encodeIfPresent(otherLinks, forKey: .otherLinks)
+        try container.encodeIfPresent(resumeFileName, forKey: .resumeFileName)
+        try container.encodeIfPresent(transcriptFileName, forKey: .transcriptFileName)
+        try container.encodeIfPresent(jobPreferences, forKey: .jobPreferences)
+        try container.encodeIfPresent(desiredSalary, forKey: .desiredSalary)
+        try container.encodeIfPresent(availableStartDate, forKey: .availableStartDate)
+        try container.encodeIfPresent(birthday, forKey: .birthday)
+        try container.encodeIfPresent(authorizedToWorkInUS, forKey: .authorizedToWorkInUS)
+        try container.encodeIfPresent(authorizedToWorkInUK, forKey: .authorizedToWorkInUK)
+        try container.encodeIfPresent(authorizedToWorkInCA, forKey: .authorizedToWorkInCA)
+        try container.encodeIfPresent(eeo, forKey: .eeo)
+        try container.encodeIfPresent(disabilityStatus, forKey: .disabilityStatus)
+        try container.encodeIfPresent(gender, forKey: .gender)
+        try container.encodeIfPresent(ethnicity, forKey: .ethnicity)
+        try container.encodeIfPresent(veteranStatus, forKey: .veteranStatus)
+        try container.encodeIfPresent(referralCode, forKey: .referralCode)
+        try container.encodeIfPresent(plan, forKey: .plan)
+        try container.encodeIfPresent(stripeCustomerId, forKey: .stripeCustomerId)
+        // acceptedJobs and appliedJobs intentionally excluded — backend-managed DynamoDB Sets
     }
 
     var completionPercentage: Int {
