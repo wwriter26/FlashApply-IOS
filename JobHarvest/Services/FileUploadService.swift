@@ -39,9 +39,9 @@ final class FileUploadService {
     // MARK: - Get Resume Download URL
     func getResumeLink() async throws -> String {
         AppLogger.files.debug("getResumeLink: fetching download URL")
-        struct ResumeLinkResponse: Codable { let url: String? }
-        let response: ResumeLinkResponse = try await network.request("/getUserResumeLink")
-        guard let url = response.url else {
+        struct LinkData: Codable { let url: String? }
+        let response: APIResponse<LinkData> = try await network.request("/getUserResumeLink")
+        guard let url = response.data?.url else {
             AppLogger.files.error("getResumeLink: response had no url field")
             throw NetworkError.noData
         }
@@ -51,9 +51,9 @@ final class FileUploadService {
     // MARK: - Get Transcript Download URL
     func getTranscriptLink() async throws -> String {
         AppLogger.files.debug("getTranscriptLink: fetching download URL")
-        struct LinkResponse: Codable { let url: String? }
-        let response: LinkResponse = try await network.request("/getUserTranscriptLink")
-        guard let url = response.url else {
+        struct LinkData: Codable { let url: String? }
+        let response: APIResponse<LinkData> = try await network.request("/getUserTranscriptLink")
+        guard let url = response.data?.url else {
             AppLogger.files.error("getTranscriptLink: response had no url field")
             throw NetworkError.noData
         }
