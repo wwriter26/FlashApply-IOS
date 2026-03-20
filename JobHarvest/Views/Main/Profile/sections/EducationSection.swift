@@ -10,7 +10,7 @@ struct EducationSection: View {
         List {
             ForEach(profileVM.profile.education ?? []) { entry in
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(entry.institution).font(.subheadline.weight(.semibold))
+                    Text(entry.institution ?? "").font(.subheadline.weight(.semibold))
                     if let degree = entry.degree { Text(degree).font(.caption).foregroundColor(.secondary) }
                     if let field = entry.field { Text(field).font(.caption).foregroundColor(.secondary) }
                     HStack {
@@ -119,7 +119,7 @@ struct EducationEntryForm: View {
             }
             .onAppear {
                 if let e = entry {
-                    institution = e.institution; degree = e.degree ?? ""
+                    institution = e.institution ?? ""; degree = e.degree ?? ""
                     field = e.field ?? ""; startDate = e.startDate ?? ""
                     endDate = e.endDate ?? ""; current = e.current ?? false
                     gpa = e.gpa ?? ""

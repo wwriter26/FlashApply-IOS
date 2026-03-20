@@ -146,6 +146,10 @@ final class NetworkService {
 
             switch http.statusCode {
             case 200...299:
+                #if DEBUG
+                let rawBody = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+                AppLogger.network.debug("[\(request.httpMethod ?? "GET")] \(fullURL) — raw response: \(rawBody.prefix(1000))")
+                #endif
                 do {
                     let decoder = JSONDecoder()
                     return try decoder.decode(T.self, from: data)

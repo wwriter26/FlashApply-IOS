@@ -20,9 +20,19 @@ final class ProfileViewModel: ObservableObject {
         do {
             let userId = try await AuthService.shared.getCurrentUserId()
             AppLogger.profile.debug("fetchProfile: GET /users/\(userId)/profile")
-            let response: UserProfile = try await network.request("/users/\(userId)/profile")
-            profile = response
-            AppLogger.profile.info("fetchProfile: success — completion \(response.completionPercentage)%")
+            let wrapper: APIResponse<UserProfile> = try await network.request("/users/\(userId)/profile")
+            if var data = wrapper.data {
+                // Backend doesn't store resumeFileName in profile — check S3 via resume link endpoint
+                if data.resumeFileName == nil {
+                    if let _ = try? await FileUploadService.shared.getResumeLink() {
+                        data.resumeFileName = "Resume"  // file exists in S3
+                    }
+                }
+                profile = data
+                AppLogger.profile.info("fetchProfile: success — completion \(data.completionPercentage)%")
+            } else {
+                AppLogger.profile.error("fetchProfile: response had no data field")
+            }
         } catch {
             AppLogger.profile.error("fetchProfile: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription
@@ -73,14 +83,10 @@ final class ProfileViewModel: ObservableObject {
         AppLogger.files.debug("uploadResume: \(fileName) (\(data.count) bytes)")
         do {
             try await FileUploadService.shared.uploadResume(data: data, fileName: fileName)
-            // Fetch current profile from server first so we have the full state,
-            // then update resumeFileName and POST the complete profile.
-            // The backend expects the full profile body (partial dicts are ignored).
-            await fetchProfile()
-            var updated = profile
-            updated.resumeFileName = fileName
-            try await updateProfile(updated)
-            AppLogger.files.info("uploadResume: profile updated with resume key")
+            // Backend doesn't store resumeFileName in the profile — it finds resumes
+            // by listing S3 at private/{identityId}/resume/. Just set local state.
+            profile.resumeFileName = fileName
+            AppLogger.files.info("uploadResume: S3 upload complete, local state updated")
         } catch {
             AppLogger.files.error("uploadResume: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription

@@ -9,9 +9,9 @@ struct WorkHistorySection: View {
         List {
             ForEach(profileVM.profile.workHistory ?? []) { entry in
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(entry.title)
+                    Text(entry.title ?? "")
                         .font(.subheadline.weight(.semibold))
-                    Text(entry.company)
+                    Text(entry.company ?? "")
                         .font(.caption).foregroundColor(.secondary)
                     HStack {
                         Text(entry.startDate ?? "")
@@ -125,7 +125,7 @@ struct WorkHistoryEntryForm: View {
             }
             .onAppear {
                 if let e = entry {
-                    title = e.title; company = e.company
+                    title = e.title ?? ""; company = e.company ?? ""
                     startDate = e.startDate ?? ""; endDate = e.endDate ?? ""
                     current = e.current ?? false; description = e.description ?? ""
                     location = e.location ?? ""

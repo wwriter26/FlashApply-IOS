@@ -10,25 +10,30 @@ final class FileUploadService {
     private let network = NetworkService.shared
 
     // MARK: - Upload Resume
+    // Backend retrieves resumes from: private/{identityId}/resume/{fileName}
+    // Amplify .private access level maps to: private/{identityId}/
+    // So key must be: resume/{fileName}
     func uploadResume(data: Data, fileName: String) async throws {
-        AppLogger.files.debug("uploadResume: \(fileName) (\(data.count) bytes)")
+        let key = "resume/\(fileName)"
+        AppLogger.files.debug("uploadResume: \(key) (\(data.count) bytes)")
         _ = try await Amplify.Storage.uploadData(
-            key: fileName,
+            key: key,
             data: data,
-            options: .init(accessLevel: .protected, contentType: "application/pdf")
+            options: .init(accessLevel: .private, contentType: "application/pdf")
         ).value
-        AppLogger.files.info("uploadResume: S3 upload complete — \(fileName)")
+        AppLogger.files.info("uploadResume: S3 upload complete — \(key)")
     }
 
     // MARK: - Upload Transcript
     func uploadTranscript(data: Data, fileName: String) async throws {
-        AppLogger.files.debug("uploadTranscript: \(fileName) (\(data.count) bytes)")
+        let key = "transcript/\(fileName)"
+        AppLogger.files.debug("uploadTranscript: \(key) (\(data.count) bytes)")
         _ = try await Amplify.Storage.uploadData(
-            key: fileName,
+            key: key,
             data: data,
-            options: .init(accessLevel: .protected, contentType: "application/pdf")
+            options: .init(accessLevel: .private, contentType: "application/pdf")
         ).value
-        AppLogger.files.info("uploadTranscript: S3 upload complete — \(fileName)")
+        AppLogger.files.info("uploadTranscript: S3 upload complete — \(key)")
     }
 
     // MARK: - Get Resume Download URL

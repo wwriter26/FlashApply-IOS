@@ -8,7 +8,7 @@ struct CertificationsSection: View {
         List {
             ForEach(profileVM.profile.certifications ?? []) { cert in
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(cert.name).font(.subheadline.weight(.semibold))
+                    Text(cert.name ?? "").font(.subheadline.weight(.semibold))
                     if let issuer = cert.issuer { Text(issuer).font(.caption).foregroundColor(.secondary) }
                     if let date = cert.date { Text(date).font(.caption).foregroundColor(.secondary) }
                 }
