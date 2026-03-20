@@ -24,8 +24,7 @@ struct MyJobsView: View {
                 if appliedJobsVM.isLoading && !appliedJobsVM.isLoaded {
                     LoadingView(message: "Loading your jobs...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if appliedJobsVM.jobs(for: .applying).isEmpty &&
-                          appliedJobsVM.jobs(for: .applied).isEmpty {
+                } else if displayedStages.allSatisfy({ appliedJobsVM.jobs(for: $0).isEmpty }) {
                     emptyState
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
