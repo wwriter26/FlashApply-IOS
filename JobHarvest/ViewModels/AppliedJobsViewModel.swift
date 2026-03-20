@@ -31,7 +31,8 @@ final class AppliedJobsViewModel: ObservableObject {
         error = nil
         AppLogger.jobs.debug("fetchAppliedJobs: loading pipeline")
         do {
-            let response: AppliedJobsResponse = try await network.request("/getAppliedJobs")
+            let wrapper: APIResponse<AppliedJobsResponse> = try await network.request("/getAppliedJobs")
+            let response = wrapper.data ?? AppliedJobsResponse()
             applyResponse(response)
             isLoaded = true
             lastFetchedAt = Date()
@@ -40,7 +41,7 @@ final class AppliedJobsViewModel: ObservableObject {
             let screen = response.screen?.count ?? 0
             let interview = response.interview?.count ?? 0
             let offer = response.offer?.count ?? 0
-            
+
             let total: Int = applying + applied + screen + interview + offer
             AppLogger.jobs.info("fetchAppliedJobs: loaded \(total) active jobs across pipeline")
         } catch {
@@ -52,7 +53,8 @@ final class AppliedJobsViewModel: ObservableObject {
 
     func silentRefresh() async {
         do {
-            let response: AppliedJobsResponse = try await network.request("/getAppliedJobs")
+            let wrapper: APIResponse<AppliedJobsResponse> = try await network.request("/getAppliedJobs")
+            let response = wrapper.data ?? AppliedJobsResponse()
             applyResponse(response)
             lastFetchedAt = Date()
         } catch {

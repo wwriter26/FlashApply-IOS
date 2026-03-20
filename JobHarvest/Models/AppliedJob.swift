@@ -56,13 +56,15 @@ struct AppliedJob: Codable, Identifiable {
 
 // MARK: - Applied Jobs Response (GET /getAppliedJobs)
 struct AppliedJobsResponse: Codable {
-    let applying: [AppliedJob]?
-    let applied: [AppliedJob]?
-    let screen: [AppliedJob]?
-    let interview: [AppliedJob]?
-    let offer: [AppliedJob]?
-    let archived: [AppliedJob]?
-    let failed: [AppliedJob]?
+    var applying: [AppliedJob]?
+    var applied: [AppliedJob]?
+    var screen: [AppliedJob]?
+    var interview: [AppliedJob]?
+    var offer: [AppliedJob]?
+    var archived: [AppliedJob]?
+    var failed: [AppliedJob]?
+
+    init() {}
 }
 
 // MARK: - Job Detail Response (GET /getJobDetails)

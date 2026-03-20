@@ -34,12 +34,12 @@ final class JobCardsViewModel: ObservableObject {
             if let fromDB = filters.fromDB { params["fromDB"] = fromDB ? "true" : "false" }
             if !seenUrls.isEmpty { params["exclude"] = seenUrls.joined(separator: ",") }
 
-            let response: FetchJobsResponse = try await network.requestWithParams(
+            let response: APIResponse<[Job]> = try await network.requestWithParams(
                 "/users/\(try await AuthService.shared.getCurrentUserId())/jobs",
                 params: params
             )
 
-            let newJobs = response.resolvedJobs
+            let newJobs = response.data ?? []
             newJobs.forEach { seenUrls.insert($0.jobUrl) }
 
             if appending {
