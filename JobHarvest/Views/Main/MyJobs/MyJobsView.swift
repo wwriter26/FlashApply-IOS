@@ -12,7 +12,6 @@ struct MyJobsView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Active / Inactive toggle
                 Picker("View", selection: $showActiveOnly) {
                     Text("Active").tag(true)
                     Text("All").tag(false)
@@ -20,6 +19,8 @@ struct MyJobsView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
+                .background(Color(UIColor.systemBackground))
+                .overlay(alignment: .bottom) { Divider() }
 
                 if appliedJobsVM.isLoading && !appliedJobsVM.isLoaded {
                     LoadingView(message: "Loading your jobs...")
@@ -28,22 +29,24 @@ struct MyJobsView: View {
                     emptyState
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    // Horizontal scrolling pipeline
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(alignment: .top, spacing: 12) {
+                    ScrollView(.vertical, showsIndicators: false) {
+                        LazyVStack(spacing: 0) {
                             ForEach(displayedStages, id: \.self) { stage in
                                 PipelineColumnView(
                                     stage: stage,
                                     jobs: appliedJobsVM.jobs(for: stage),
                                     onJobTap: { job in selectedJob = job }
                                 )
+                                Divider()
+                                    .padding(.leading, 16)
                             }
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 32)
                     }
+                    .background(Color.flashBackground)
                 }
             }
+            .background(Color.flashBackground)
             .navigationTitle("My Jobs")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -70,15 +73,27 @@ struct MyJobsView: View {
 
     private var emptyState: some View {
         VStack(spacing: 20) {
-            Image(systemName: "briefcase")
-                .font(.system(size: 60))
-                .foregroundColor(.flashTextSecondary)
-            Text("No Applications Yet")
-                .font(.title2).fontWeight(.semibold).foregroundColor(.flashNavy)
-            Text("Swipe right on jobs to start applying. Your applications will appear here.")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 32)
+            ZStack {
+                Circle()
+                    .fill(Color.flashTeal.opacity(0.10))
+                    .frame(width: 100, height: 100)
+                Image(systemName: "briefcase")
+                    .font(.system(size: 44, weight: .light))
+                    .foregroundColor(.flashTeal)
+            }
+
+            VStack(spacing: 8) {
+                Text("No Applications Yet")
+                    .font(.title3).fontWeight(.semibold)
+                    .foregroundColor(.flashNavy)
+                Text("Swipe right on jobs to start applying.\nYour applications will appear here.")
+                    .multilineTextAlignment(.center)
+                    .font(.subheadline)
+                    .foregroundColor(.flashTextSecondary)
+                    .lineSpacing(3)
+                    .padding(.horizontal, 40)
+            }
         }
+        .padding(.vertical, 40)
     }
 }

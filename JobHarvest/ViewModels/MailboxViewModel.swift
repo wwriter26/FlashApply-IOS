@@ -40,11 +40,12 @@ final class MailboxViewModel: ObservableObject {
         AppLogger.network.debug("fetchEmails: loading mailbox")
         do {
             let body: [String: String?] = ["bookmarkTimestamp": nil]
-            let response: BasicEmailDataResponse = try await network.request(
+            let wrapper: APIResponse<BasicEmailDataResponse> = try await network.request(
                 "/getBasicEmailData",
                 method: "POST",
                 body: body
             )
+            let response = wrapper.data ?? BasicEmailDataResponse(emails: nil, bookmarkTimestamp: nil, hasMore: nil)
             emails = response.emails ?? []
             bookmarkTimestamp = response.bookmarkTimestamp
             hasMore = response.hasMore ?? false
@@ -64,11 +65,12 @@ final class MailboxViewModel: ObservableObject {
         AppLogger.network.debug("loadMore: fetching next page (bookmark: \(bookmark))")
         do {
             let body = ["bookmarkTimestamp": bookmark]
-            let response: BasicEmailDataResponse = try await network.request(
+            let wrapper: APIResponse<BasicEmailDataResponse> = try await network.request(
                 "/getBasicEmailData",
                 method: "POST",
                 body: body
             )
+            let response = wrapper.data ?? BasicEmailDataResponse(emails: nil, bookmarkTimestamp: nil, hasMore: nil)
             let newCount = response.emails?.count ?? 0
             emails.append(contentsOf: response.emails ?? [])
             bookmarkTimestamp = response.bookmarkTimestamp
@@ -118,12 +120,12 @@ final class MailboxViewModel: ObservableObject {
     func fetchEmailDetail(emailId: String) async -> EmailDetail? {
         do {
             let body = ["emailId": emailId]
-            let response: SpecificEmailResponse = try await network.request(
+            let wrapper: APIResponse<SpecificEmailResponse> = try await network.request(
                 "/getSpecificEmail",
                 method: "POST",
                 body: body
             )
-            return response.email
+            return wrapper.data?.email
         } catch {
             AppLogger.network.error("fetchEmailDetail: \(error)")
             return nil

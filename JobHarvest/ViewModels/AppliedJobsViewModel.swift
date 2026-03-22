@@ -117,15 +117,16 @@ final class AppliedJobsViewModel: ObservableObject {
         do {
             struct DetailRequest: Encodable { let jobUrl: String; let companyId: String? }
             let req = DetailRequest(jobUrl: jobUrl, companyId: companyId)
-            let detail: JobDetailResponse = try await network.request("/getJobDetails", method: "POST", body: req)
+            let wrapper: APIResponse<JobDetailResponse> = try await network.request("/getJobDetails", method: "POST", body: req)
+            let detail = wrapper.data
 
             if var job = selectedJob {
-                job.jobDescription = detail.jobDescription
-                job.jobDescriptionHTML = detail.jobDescriptionHTML
-                job.desiredSkillsTags = detail.desiredSkillsTags
-                job.jobRequirements = detail.jobRequirements
-                job.jobResponsibilities = detail.jobResponsibilities
-                job.companyData = detail.companyData
+                job.jobDescription = detail?.jobDescription
+                job.jobDescriptionHTML = detail?.jobDescriptionHTML
+                job.desiredSkillsTags = detail?.desiredSkillsTags
+                job.jobRequirements = detail?.jobRequirements
+                job.jobResponsibilities = detail?.jobResponsibilities
+                job.companyData = detail?.companyData
                 selectedJob = job
             }
         } catch {

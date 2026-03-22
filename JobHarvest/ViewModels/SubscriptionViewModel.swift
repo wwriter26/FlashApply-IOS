@@ -19,12 +19,13 @@ final class SubscriptionViewModel: ObservableObject {
         AppLogger.subscription.debug("createCheckoutSession: plan = \(plan.rawValue)")
         do {
             struct CheckoutBody: Encodable { let planChosen: String }
-            let response: CheckoutSessionResponse = try await network.request(
+            let wrapper: APIResponse<CheckoutSessionResponse> = try await network.request(
                 "/createCheckoutSession",
                 method: "POST",
                 body: CheckoutBody(planChosen: plan.rawValue)
             )
-            if let urlString = response.url, let url = URL(string: urlString) {
+            let response = wrapper.data
+            if let urlString = response?.url, let url = URL(string: urlString) {
                 checkoutURL = url
                 AppLogger.subscription.info("createCheckoutSession: checkout URL ready for \(plan.rawValue)")
             } else {

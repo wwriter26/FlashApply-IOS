@@ -16,80 +16,100 @@ struct SignUpView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                VStack(spacing: 8) {
-                    Text("Create Account")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.flashNavy)
-                        .padding(.top, 40)
-                    Text("Start applying to jobs instantly")
-                        .font(.subheadline)
-                        .foregroundColor(.flashTextSecondary)
-                }
+        ZStack {
+            LinearGradient(
+                colors: [Color.flashWhite, Color.flashTeal.opacity(0.08)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-                VStack(spacing: 16) {
-                    TextField("Full Name", text: $name)
-                        .textContentType(.name)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-
-                    TextField("Email address", text: $email)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-
-                    SecureField("Password (min 8 characters)", text: $password)
-                        .textContentType(.newPassword)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-
-                    SecureField("Confirm Password", text: $confirmPassword)
-                        .textContentType(.newPassword)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-
-                    if !confirmPassword.isEmpty && !passwordsMatch {
-                        Text("Passwords do not match")
-                            .foregroundColor(.red)
-                            .font(.caption)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+            ScrollView {
+                VStack(spacing: 0) {
+                    VStack(spacing: 8) {
+                        Text("Create Account")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundColor(.flashNavy)
+                            .padding(.top, 40)
+                        Text("Start applying to jobs instantly")
+                            .font(.subheadline)
+                            .foregroundColor(.flashTextSecondary)
                     }
 
-                    if let error = authVM.error {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    VStack(spacing: 16) {
+                        AuthTextField(
+                            placeholder: "Full Name",
+                            text: $name,
+                            contentType: .name,
+                            keyboardType: .default,
+                            isSecure: false
+                        )
 
-                    Button(action: handleSignUp) {
-                        if authVM.isLoading {
-                            ProgressView().tint(.white)
-                        } else {
-                            Text("Create Account")
+                        AuthTextField(
+                            placeholder: "Email address",
+                            text: $email,
+                            contentType: .emailAddress,
+                            keyboardType: .emailAddress,
+                            isSecure: false
+                        )
+
+                        AuthTextField(
+                            placeholder: "Password (min 8 characters)",
+                            text: $password,
+                            contentType: .newPassword,
+                            keyboardType: .default,
+                            isSecure: true
+                        )
+
+                        AuthTextField(
+                            placeholder: "Confirm Password",
+                            text: $confirmPassword,
+                            contentType: .newPassword,
+                            keyboardType: .default,
+                            isSecure: true
+                        )
+
+                        if !confirmPassword.isEmpty && !passwordsMatch {
+                            Text("Passwords do not match")
+                                .foregroundColor(.red)
+                                .font(.caption)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 4)
                         }
-                    }
-                    .primaryButtonStyle()
-                    .disabled(!formValid || authVM.isLoading)
 
-                    Text("By creating an account, you agree to our Terms of Service and Privacy Policy.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+                        if let error = authVM.error {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.caption)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 4)
+                        }
+
+                        Button(action: handleSignUp) {
+                            if authVM.isLoading {
+                                ProgressView().tint(.white)
+                            } else {
+                                Text("Create Account")
+                            }
+                        }
+                        .primaryButtonStyle()
+                        .disabled(!formValid || authVM.isLoading)
+
+                        Text("By creating an account, you agree to our Terms of Service and Privacy Policy.")
+                            .font(.caption)
+                            .foregroundColor(.flashTextSecondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(24)
+                    .background(Color.white.opacity(0.85))
+                    .cornerRadius(20)
+                    .shadow(color: .black.opacity(0.06), radius: 16, x: 0, y: 6)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 28)
+                    .padding(.bottom, 48)
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 32)
-                .padding(.bottom, 40)
             }
         }
-        .background(Color.flashBackground.ignoresSafeArea())
         .navigationTitle("Sign Up")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showVerification) {

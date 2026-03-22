@@ -19,10 +19,11 @@ final class ReferralViewModel: ObservableObject {
         error = nil
         AppLogger.referral.debug("fetchReferralData: loading")
         do {
-            let response: ReferralData = try await network.request("/getReferral")
+            let wrapper: APIResponse<ReferralData> = try await network.request("/getReferral")
+            let response = wrapper.data
             referralData = response
             isLoaded = true
-            AppLogger.referral.info("fetchReferralData: success — code = \(response.referralCode ?? "nil")")
+            AppLogger.referral.info("fetchReferralData: success — code = \(response?.referralCode ?? "nil")")
         } catch {
             AppLogger.referral.error("fetchReferralData: failed — \(error.localizedDescription)")
             self.error = error.localizedDescription

@@ -73,17 +73,21 @@ final class JobCardsViewModel: ObservableObject {
         }
 
         do {
+            // identityId is required by the backend alongside jobUrl and isAccepting
+            let identityId = try await AuthService.shared.getIdentityId()
             let body = SwipeRequestBody(
                 jobUrl: job.jobUrl,
                 isAccepting: isAccepting,
+                identityId: identityId,
                 manualUserAnswers: answers.isEmpty ? nil : answers
             )
-            let response: SwipeResponse = try await network.request(
+            let wrapper: APIResponse<SwipeResponse> = try await network.request(
                 "/handleSwipe",
                 method: "POST",
                 body: body
             )
-            if let remaining = response.swipesRemaining {
+            let response = wrapper.data
+            if let remaining = response?.swipesRemaining {
                 swipesRemaining = remaining
             }
             return response
@@ -114,6 +118,7 @@ final class JobCardsViewModel: ObservableObject {
 private struct SwipeRequestBody: Encodable {
     let jobUrl: String
     let isAccepting: Bool
+    let identityId: String
     let manualUserAnswers: [String: String]?
 }
 

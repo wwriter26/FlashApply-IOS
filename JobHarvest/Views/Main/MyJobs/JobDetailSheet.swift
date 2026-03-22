@@ -20,29 +20,31 @@ struct JobDetailSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Header
+                VStack(alignment: .leading, spacing: 0) {
                     jobHeader
 
-                    // Stage Picker
-                    stagePicker
+                    VStack(alignment: .leading, spacing: 20) {
+                        stagePicker
 
-                    Divider()
+                        Divider()
+                            .padding(.horizontal)
 
-                    // Tab Content
-                    Picker("", selection: $selectedTab) {
-                        Text("Overview").tag(0)
-                        Text("Requirements").tag(1)
-                        Text("Company").tag(2)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-
-                    tabContent
+                        Picker("", selection: $selectedTab) {
+                            Text("Overview").tag(0)
+                            Text("Requirements").tag(1)
+                            Text("Company").tag(2)
+                        }
+                        .pickerStyle(.segmented)
                         .padding(.horizontal)
+
+                        tabContent
+                            .padding(.horizontal)
+                    }
+                    .padding(.top, 20)
                 }
-                .padding(.bottom, 32)
+                .padding(.bottom, 40)
             }
+            .background(Color.flashBackground)
             .navigationTitle("Job Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -72,32 +74,72 @@ struct JobDetailSheet: View {
 
     // MARK: - Header
     private var jobHeader: some View {
-        HStack(alignment: .top, spacing: 12) {
-            CompanyLogoView(domain: job.companyData?.logoDomain ?? job.companyId, size: 56)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(job.jobTitle ?? "Job Title")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.flashNavy)
-                Text(job.companyName ?? "Company")
-                    .font(.subheadline).foregroundColor(.secondary)
+        ZStack(alignment: .bottomLeading) {
+            let accentColor = (job.stage ?? .applied).color
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [accentColor.opacity(0.85), accentColor.opacity(0.55)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(height: 100)
+
+            HStack(alignment: .bottom, spacing: 14) {
+                CompanyLogoView(
+                    domain: job.companyData?.logoDomain ?? job.companyId,
+                    size: 64
+                )
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+                .offset(y: 20)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(job.jobTitle ?? "Job Title")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                    Text(job.companyName ?? "Company")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(.white.opacity(0.85))
+                        .lineLimit(1)
+                }
+                .padding(.bottom, 8)
+            }
+            .padding(.horizontal, 16)
+        }
+        .padding(.bottom, 24)
+        .overlay(alignment: .bottom) {
+            HStack(spacing: 16) {
+                Spacer().frame(width: 94)
                 if let loc = job.jobLocation {
-                    Label(loc, systemImage: "mappin.circle")
-                        .font(.caption).foregroundColor(.flashTextSecondary)
+                    Label(loc, systemImage: "mappin.circle.fill")
+                        .font(.caption)
+                        .foregroundColor(.flashTextSecondary)
+                        .lineLimit(1)
                 }
                 if let pay = job.payEstimate {
                     Text(pay.formattedString)
-                        .font(.caption.weight(.semibold)).foregroundColor(.flashOrange)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.flashOrange)
+                        .lineLimit(1)
                 }
+                Spacer()
             }
+            .padding(.top, 20)
         }
-        .padding(.horizontal)
-        .padding(.top, 12)
     }
 
     // MARK: - Stage Picker
     private var stagePicker: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Pipeline Stage").font(.headline).padding(.horizontal)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Pipeline Stage")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.flashTextSecondary)
+                .padding(.horizontal)
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(PipelineStage.allCases, id: \.self) { stage in
@@ -105,14 +147,36 @@ struct JobDetailSheet: View {
                             selectedStage = stage
                             Task { await appliedJobsVM.moveJob(job, to: stage) }
                         }) {
-                            Text(stage.displayName)
-                                .font(.caption.weight(.semibold))
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(selectedStage == stage ? stage.color : Color.gray.opacity(0.1))
-                                .foregroundColor(selectedStage == stage ? .white : .primary)
-                                .cornerRadius(20)
+                            HStack(spacing: 5) {
+                                Circle()
+                                    .fill(stage.color)
+                                    .frame(width: 7, height: 7)
+                                Text(stage.displayName)
+                                    .font(.system(size: 13, weight: .semibold))
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(
+                                selectedStage == stage
+                                    ? stage.color.opacity(0.14)
+                                    : Color.clear
+                            )
+                            .foregroundColor(
+                                selectedStage == stage ? stage.color : .secondary
+                            )
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(
+                                        selectedStage == stage
+                                            ? stage.color
+                                            : Color.gray.opacity(0.25),
+                                        lineWidth: 1.5
+                                    )
+                            )
+                            .clipShape(Capsule())
                         }
+                        .buttonStyle(.plain)
+                        .animation(.easeInOut(duration: 0.15), value: selectedStage)
                     }
                 }
                 .padding(.horizontal)
@@ -133,93 +197,156 @@ struct JobDetailSheet: View {
     @ViewBuilder
     private var overviewTab: some View {
         if appliedJobsVM.selectedJobLoading {
-            ProgressView().frame(maxWidth: .infinity)
+            ProgressView()
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
         } else if let desc = detail.jobDescription {
-            Text(desc).font(.callout)
+            Text(desc)
+                .font(.callout)
+                .lineSpacing(4)
+                .foregroundColor(.flashDark)
         } else {
-            Text("No description available.").foregroundColor(.secondary)
+            emptyTabPlaceholder(icon: "doc.text", message: "No description available.")
         }
         if let skills = detail.desiredSkillsTags, !skills.isEmpty {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Desired Skills").font(.headline)
+            VStack(alignment: .leading, spacing: 10) {
+                sectionLabel("Desired Skills")
                 FlowLayout(items: skills) { skill in
                     Text(skill)
-                        .font(.caption)
-                        .padding(.horizontal, 8).padding(.vertical, 4)
-                        .background(Color.flashTeal.opacity(0.1))
+                        .font(.caption.weight(.medium))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Color.flashTeal.opacity(0.10))
                         .foregroundColor(.flashTeal)
-                        .cornerRadius(6)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
             }
+            .padding(.top, 8)
         }
     }
 
     @ViewBuilder
     private var requirementsTab: some View {
         if let reqs = detail.jobRequirements, !reqs.isEmpty {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Requirements").font(.headline)
-                ForEach(reqs, id: \.self) { req in
-                    HStack(alignment: .top, spacing: 6) {
-                        Text("•").foregroundColor(.flashTeal)
-                        Text(req).font(.callout)
-                    }
-                }
+            VStack(alignment: .leading, spacing: 10) {
+                sectionLabel("Requirements")
+                bulletList(reqs)
             }
         }
         if let resps = detail.jobResponsibilities, !resps.isEmpty {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Responsibilities").font(.headline)
-                ForEach(resps, id: \.self) { resp in
-                    HStack(alignment: .top, spacing: 6) {
-                        Text("•").foregroundColor(.flashTeal)
-                        Text(resp).font(.callout)
-                    }
-                }
+            VStack(alignment: .leading, spacing: 10) {
+                sectionLabel("Responsibilities")
+                bulletList(resps)
             }
+            .padding(.top, 8)
+        }
+        if (detail.jobRequirements ?? []).isEmpty && (detail.jobResponsibilities ?? []).isEmpty {
+            emptyTabPlaceholder(icon: "list.bullet.clipboard", message: "No requirements listed.")
         }
     }
 
     @ViewBuilder
     private var companyTab: some View {
         if let company = detail.companyData {
-            VStack(alignment: .leading, spacing: 12) {
-                if let tagline = company.tagline { Text(tagline).italic().foregroundColor(.secondary) }
-                if let desc = company.description { Text(desc).font(.callout) }
-                companyInfoRow("Size", value: company.size)
-                companyInfoRow("Founded", value: company.founded)
-                companyInfoRow("HQ", value: company.headquarters)
-                companyInfoRow("Revenue", value: company.revenue)
-                companyInfoRow("Type", value: company.type)
+            VStack(alignment: .leading, spacing: 14) {
+                if let tagline = company.tagline {
+                    Text(tagline)
+                        .italic()
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                if let desc = company.description {
+                    Text(desc)
+                        .font(.callout)
+                        .lineSpacing(4)
+                        .foregroundColor(.flashDark)
+                }
+
+                VStack(spacing: 0) {
+                    companyInfoRow("Size",     value: company.size)
+                    companyInfoRow("Founded",  value: company.founded)
+                    companyInfoRow("HQ",       value: company.headquarters)
+                    companyInfoRow("Revenue",  value: company.revenue)
+                    companyInfoRow("Type",     value: company.type)
+                }
+                .background(Color.flashWhite)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 2)
+
                 if let benefits = company.benefits, !benefits.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Benefits").font(.headline)
+                    VStack(alignment: .leading, spacing: 10) {
+                        sectionLabel("Benefits")
                         FlowLayout(items: benefits) { benefit in
                             Text(benefit)
-                                .font(.caption)
-                                .padding(.horizontal, 8).padding(.vertical, 4)
-                                .background(Color.green.opacity(0.1))
+                                .font(.caption.weight(.medium))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.green.opacity(0.10))
                                 .foregroundColor(.green)
-                                .cornerRadius(6)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
                         }
                     }
                 }
             }
         } else {
-            Text("No company info available.").foregroundColor(.secondary)
+            emptyTabPlaceholder(icon: "building.2", message: "No company info available.")
         }
     }
 
+    // MARK: - Helpers
     @ViewBuilder
     private func companyInfoRow(_ label: String, value: String?) -> some View {
         if let value = value {
             HStack {
-                Text(label).font(.caption.weight(.semibold)).foregroundColor(.secondary)
+                Text(label)
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.secondary)
                 Spacer()
-                Text(value).font(.caption)
+                Text(value)
+                    .font(.caption)
+                    .foregroundColor(.flashDark)
             }
-            .padding(.vertical, 2)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            Divider()
+                .padding(.leading, 14)
         }
+    }
+
+    private func sectionLabel(_ title: String) -> some View {
+        Text(title)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundColor(.flashNavy)
+    }
+
+    private func bulletList(_ items: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(items, id: \.self) { item in
+                HStack(alignment: .top, spacing: 8) {
+                    Circle()
+                        .fill(Color.flashTeal)
+                        .frame(width: 6, height: 6)
+                        .padding(.top, 6)
+                    Text(item)
+                        .font(.callout)
+                        .lineSpacing(3)
+                        .foregroundColor(.flashDark)
+                }
+            }
+        }
+    }
+
+    private func emptyTabPlaceholder(icon: String, message: String) -> some View {
+        VStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 28, weight: .light))
+                .foregroundColor(.flashTextSecondary)
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.flashTextSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 40)
     }
 }
 
