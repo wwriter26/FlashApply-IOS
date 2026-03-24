@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import os
 
 struct ResumeSection: View {
     @EnvironmentObject var profileVM: ProfileViewModel
@@ -7,6 +8,7 @@ struct ResumeSection: View {
     @State private var resumeURL: URL?
     @State private var isUploading = false
     @State private var showDownload = false
+    @State private var uploadStatus = ""
 
     var body: some View {
         Form {
@@ -36,12 +38,16 @@ struct ResumeSection: View {
                 .disabled(isUploading)
 
                 if isUploading {
-                    HStack { ProgressView(); Text("Uploading...").foregroundColor(.secondary) }
+                    HStack {
+                        ProgressView()
+                        Text(uploadStatus.isEmpty ? "Uploading..." : uploadStatus)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
 
             Section {
-                Text("Upload a PDF resume. JobHarvest uses it to auto-fill job applications on your behalf.")
+                Text("Upload a PDF resume. JobHarvest uses it to auto-fill job applications and your profile on your behalf.")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -61,9 +67,25 @@ struct ResumeSection: View {
     private func uploadResume(from url: URL) {
         guard let data = try? Data(contentsOf: url) else { return }
         isUploading = true
+        uploadStatus = "Uploading..."
         Task {
             await profileVM.uploadResume(data: data, fileName: url.lastPathComponent)
+
+            // Parse resume — backend extracts profile data from PDF
+            uploadStatus = "Parsing resume..."
+            do {
+                let identityId = try await AuthService.shared.getIdentityId()
+                let body = ["identityId": identityId]
+                let _: MessageResponse = try await NetworkService.shared.request("/parseResume", method: "POST", body: body)
+                AppLogger.files.info("ResumeSection: parseResume success")
+            } catch {
+                AppLogger.files.error("ResumeSection: parseResume failed — \(error.localizedDescription)")
+            }
+
+            // Re-fetch profile to get parsed data
+            await profileVM.fetchProfile()
             isUploading = false
+            uploadStatus = ""
         }
     }
 

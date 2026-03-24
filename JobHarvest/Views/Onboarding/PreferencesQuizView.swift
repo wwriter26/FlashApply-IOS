@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
+import os
 
 struct PreferencesQuizView: View {
     @EnvironmentObject var authVM: AuthViewModel
@@ -22,6 +23,8 @@ struct PreferencesQuizView: View {
     @State private var resumeFileName = ""
     @State private var showDocumentPicker = false
     @State private var showSkipConfirm = false
+    @State private var isParsing = false
+    @State private var parseStatus = ""
 
     // New fields
     @State private var experienceLevel: [String] = []
@@ -263,8 +266,86 @@ struct PreferencesQuizView: View {
                         .font(.caption)
                         .foregroundColor(.orange)
                 }
+
+                if isParsing {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text(parseStatus)
+                            .font(.caption)
+                            .foregroundColor(.flashTeal)
+                    }
+                    .padding(.top, 4)
+                }
+
+                if resumeData != nil && !isParsing {
+                    Text("Resume uploaded! We'll use it to pre-fill your profile.")
+                        .font(.caption)
+                        .foregroundColor(.green)
+                }
             }
             .padding(24)
+        }
+        .onChange(of: resumeData) { newData in
+            guard let data = newData, !resumeFileName.isEmpty else { return }
+            parseResumeAndPrefill(data: data, fileName: resumeFileName)
+        }
+    }
+
+    private func parseResumeAndPrefill(data: Data, fileName: String) {
+        isParsing = true
+        parseStatus = "Uploading resume..."
+        Task {
+            // 1. Upload to S3
+            await profileVM.uploadResume(data: data, fileName: fileName)
+
+            // 2. Call /parseResume
+            parseStatus = "Parsing your resume..."
+            do {
+                let identityId = try await AuthService.shared.getIdentityId()
+                let body = ["identityId": identityId]
+                let _: MessageResponse = try await NetworkService.shared.request("/parseResume", method: "POST", body: body)
+                AppLogger.files.info("Quiz: parseResume success")
+            } catch {
+                AppLogger.files.error("Quiz: parseResume failed — \(error.localizedDescription)")
+                isParsing = false
+                parseStatus = ""
+                return
+            }
+
+            // 3. Re-fetch profile to get parsed data
+            parseStatus = "Loading parsed data..."
+            await profileVM.fetchProfile()
+
+            // 4. Pre-fill quiz fields from parsed profile
+            let p = profileVM.profile
+            if firstName.isEmpty { firstName = p.firstName ?? "" }
+            if lastName.isEmpty { lastName = p.lastName ?? "" }
+            if phone.isEmpty { phone = p.phone ?? "" }
+            if let auth = p.authorizedToWorkInUS, !auth.isEmpty { workAuth = auth }
+            if let sp = p.sponsorship, !sp.isEmpty { requiresSponsorship = sp }
+            if skills.isEmpty { skills = p.skills ?? [] }
+            if experienceLevel.isEmpty { experienceLevel = p.experienceLevel ?? [] }
+            if careerSummary.isEmpty { careerSummary = p.careerSummaryHeadline ?? "" }
+            if linkedInURL.isEmpty { linkedInURL = p.linkedIn ?? "" }
+            if githubURL.isEmpty { githubURL = p.github ?? "" }
+            if portfolioURL.isEmpty { portfolioURL = p.portfolio ?? "" }
+            if websiteURL.isEmpty { websiteURL = p.website ?? "" }
+            if locationCity.isEmpty { locationCity = p.city ?? "" }
+            if locationState.isEmpty { locationState = p.state ?? "" }
+            if let salary = p.desiredSalary, desiredSalary.isEmpty {
+                desiredSalary = String(Int(salary))
+            }
+            if let relocate = p.willingToRelocate, !relocate.isEmpty {
+                willingToRelocate = relocate
+            }
+            if jobCategories.isEmpty { jobCategories = p.jobCategoryInterests ?? [] }
+            if let prefs = p.jobPreferences {
+                if jobTypes.isEmpty { jobTypes = prefs.jobTypes ?? [] }
+                if let remote = prefs.remoteOnly { remoteOnly = remote }
+            }
+
+            isParsing = false
+            parseStatus = ""
         }
     }
 
@@ -561,6 +642,7 @@ struct PreferencesQuizView: View {
     }
 
     private var canAdvance: Bool {
+        if isParsing { return false }
         switch currentStep {
         case 0: return resumeData != nil
         case 1: return !firstName.isEmpty && !lastName.isEmpty
@@ -607,12 +689,8 @@ struct PreferencesQuizView: View {
                 if !skills.isEmpty { profileVM.profile.skills = skills }
                 if !jobCategories.isEmpty { profileVM.profile.jobCategoryInterests = jobCategories }
 
-                // Upload resume
-                if let data = resumeData, !resumeFileName.isEmpty {
-                    await profileVM.uploadResume(data: data, fileName: resumeFileName)
-                }
-
-                // Save full profile
+                // Resume was already uploaded + parsed on step 1 via parseResumeAndPrefill.
+                // Just save the final quiz answers (which may override parsed data).
                 try await profileVM.updateProfile(profileVM.profile)
 
                 // Mark onboarding complete

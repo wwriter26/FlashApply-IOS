@@ -2,6 +2,7 @@ import SwiftUI
 
 struct EmailVerificationView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @Environment(\.dismiss) private var dismiss
     let email: String
     let password: String
     @State private var code = ""
@@ -63,7 +64,15 @@ struct EmailVerificationView: View {
         .background(Color.flashBackground.ignoresSafeArea())
         .navigationTitle("Verify Email")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.flashNavy)
+                }
+            }
+        }
     }
 
     private func handleVerification() {
