@@ -25,7 +25,7 @@ struct UserProfile: Codable {
     var workAuthorization: String?
     var sponsorship: String?
 
-    // Address — backend sends flat "address" string, but we also support structured fields
+    // Address
     var address: String?
     var street: String?
     var city: String?
@@ -34,34 +34,51 @@ struct UserProfile: Codable {
     var country: String?
     var countryOfResidence: String?
 
-    // Work / Education — backend uses "educationHistory" not "education"
+    // Work / Education
     var workHistory: [WorkHistoryEntry]?
     var educationHistory: [EducationEntry]?
     var skills: [String]?
     var certifications: [CertificationEntry]?
     var additionalInformation: String?
     var careerSummaryHeadline: String?
+    var experienceLevel: [String]?
+    var yearsOfExperience: String?
 
     // Links
     var linkedIn: String?
     var github: String?
     var portfolio: String?
+    var website: String?
+    var twitter: String?
     var otherLinks: [String]?
 
     // Resume
     var resumeFileName: String?
     var transcriptFileName: String?
+    var resumeLastUploaded: Double?
 
-    // Job Preferences — backend sends individual fields, not a nested object
+    // Job Preferences
     var jobPreferences: JobPreferences?
     var desiredSalary: Double?
     var availableStartDate: String?
     var birthday: String?
+    var preferredJobLocations: [PreferredLocation]?
+    var jobCategoryInterests: [String]?
+    var lookingForInCompany: [String]?
 
-    // Work authorization — backend sends per-country fields
+    // Work authorization — per-country fields
     var authorizedToWorkInUS: String?
     var authorizedToWorkInUK: String?
     var authorizedToWorkInCA: String?
+    var isUsCitizen: String?
+
+    // Personal
+    var pronouns: String?
+    var hasDriversLicenseAndVehicle: String?
+    var willingToRelocate: String?
+    var willingToCommute: String?
+    var willingToTravel: String?
+    var securityClearance: String?
 
     // EEO
     var eeo: EEOData?
@@ -69,6 +86,8 @@ struct UserProfile: Codable {
     var gender: String?
     var ethnicity: [String]?
     var veteranStatus: String?
+    var hispanicOrLatino: String?
+    var isLgbtq: String?
 
     // Referral
     var referralCode: String?
@@ -76,11 +95,14 @@ struct UserProfile: Codable {
     // Subscription
     var plan: String?
     var stripeCustomerId: String?
+    var membershipPlanActive: Bool?
+
+    // Misc
+    var toolsWorkedWith: [String]?
+    var licenses: [String]?
+    var references: [AnyCodable]?
 
     // Backend-managed job tracking fields — decode only, NEVER send back.
-    // These are DynamoDB String Sets managed by moveJob/acceptJob/rejectJob.
-    // Sending null via profile update converts them from SS to NULL type,
-    // which breaks moveJob's ADD/DELETE Set operations.
     var acceptedJobs: AnyCodable?
     var appliedJobs: AnyCodable?
 
@@ -102,22 +124,30 @@ struct UserProfile: Codable {
         case workHistory = "jobHistory"
         case educationHistory, skills, certifications
         case additionalInformation, careerSummaryHeadline
+        case experienceLevel, yearsOfExperience
         case linkedIn = "linkedin"
-        case github, portfolio, otherLinks
+        case github, portfolio, website, twitter, otherLinks
         case resumeFileName = "resume"
         case transcriptFileName = "transcript"
+        case resumeLastUploaded
         case jobPreferences, desiredSalary, availableStartDate, birthday
+        case preferredJobLocations, jobCategoryInterests, lookingForInCompany
         case authorizedToWorkInUS, authorizedToWorkInUK, authorizedToWorkInCA
+        case isUsCitizen
+        case pronouns, hasDriversLicenseAndVehicle
+        case willingToRelocate, willingToCommute, willingToTravel
+        case securityClearance
         case eeo, disabilityStatus, gender
         case ethnicity = "race"
-        case veteranStatus
+        case veteranStatus, hispanicOrLatino, isLgbtq
         case referralCode
         case plan = "membershipPlan"
-        case stripeCustomerId
+        case stripeCustomerId, membershipPlanActive
+        case toolsWorkedWith, licenses, references
         case acceptedJobs, appliedJobs
     }
 
-    // Custom encode: exclude job-tracking fields that the backend manages
+    // Custom encode: exclude backend-managed fields
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(firstName, forKey: .firstName)
@@ -133,15 +163,19 @@ struct UserProfile: Codable {
         try container.encodeIfPresent(zipCode, forKey: .zipCode)
         try container.encodeIfPresent(country, forKey: .country)
         try container.encodeIfPresent(countryOfResidence, forKey: .countryOfResidence)
-        try container.encodeIfPresent(workHistory, forKey: .workHistory)  // encodes as "jobHistory"
+        try container.encodeIfPresent(workHistory, forKey: .workHistory)
         try container.encodeIfPresent(educationHistory, forKey: .educationHistory)
         try container.encodeIfPresent(skills, forKey: .skills)
         try container.encodeIfPresent(certifications, forKey: .certifications)
         try container.encodeIfPresent(additionalInformation, forKey: .additionalInformation)
         try container.encodeIfPresent(careerSummaryHeadline, forKey: .careerSummaryHeadline)
+        try container.encodeIfPresent(experienceLevel, forKey: .experienceLevel)
+        try container.encodeIfPresent(yearsOfExperience, forKey: .yearsOfExperience)
         try container.encodeIfPresent(linkedIn, forKey: .linkedIn)
         try container.encodeIfPresent(github, forKey: .github)
         try container.encodeIfPresent(portfolio, forKey: .portfolio)
+        try container.encodeIfPresent(website, forKey: .website)
+        try container.encodeIfPresent(twitter, forKey: .twitter)
         try container.encodeIfPresent(otherLinks, forKey: .otherLinks)
         try container.encodeIfPresent(resumeFileName, forKey: .resumeFileName)
         try container.encodeIfPresent(transcriptFileName, forKey: .transcriptFileName)
@@ -149,34 +183,94 @@ struct UserProfile: Codable {
         try container.encodeIfPresent(desiredSalary, forKey: .desiredSalary)
         try container.encodeIfPresent(availableStartDate, forKey: .availableStartDate)
         try container.encodeIfPresent(birthday, forKey: .birthday)
+        try container.encodeIfPresent(preferredJobLocations, forKey: .preferredJobLocations)
+        try container.encodeIfPresent(jobCategoryInterests, forKey: .jobCategoryInterests)
+        try container.encodeIfPresent(lookingForInCompany, forKey: .lookingForInCompany)
         try container.encodeIfPresent(authorizedToWorkInUS, forKey: .authorizedToWorkInUS)
         try container.encodeIfPresent(authorizedToWorkInUK, forKey: .authorizedToWorkInUK)
         try container.encodeIfPresent(authorizedToWorkInCA, forKey: .authorizedToWorkInCA)
+        try container.encodeIfPresent(isUsCitizen, forKey: .isUsCitizen)
+        try container.encodeIfPresent(pronouns, forKey: .pronouns)
+        try container.encodeIfPresent(hasDriversLicenseAndVehicle, forKey: .hasDriversLicenseAndVehicle)
+        try container.encodeIfPresent(willingToRelocate, forKey: .willingToRelocate)
+        try container.encodeIfPresent(willingToCommute, forKey: .willingToCommute)
+        try container.encodeIfPresent(willingToTravel, forKey: .willingToTravel)
+        try container.encodeIfPresent(securityClearance, forKey: .securityClearance)
         try container.encodeIfPresent(eeo, forKey: .eeo)
         try container.encodeIfPresent(disabilityStatus, forKey: .disabilityStatus)
         try container.encodeIfPresent(gender, forKey: .gender)
         try container.encodeIfPresent(ethnicity, forKey: .ethnicity)
         try container.encodeIfPresent(veteranStatus, forKey: .veteranStatus)
+        try container.encodeIfPresent(hispanicOrLatino, forKey: .hispanicOrLatino)
+        try container.encodeIfPresent(isLgbtq, forKey: .isLgbtq)
         try container.encodeIfPresent(referralCode, forKey: .referralCode)
         try container.encodeIfPresent(plan, forKey: .plan)
         try container.encodeIfPresent(stripeCustomerId, forKey: .stripeCustomerId)
-        // acceptedJobs and appliedJobs intentionally excluded — backend-managed DynamoDB Sets
+        try container.encodeIfPresent(toolsWorkedWith, forKey: .toolsWorkedWith)
+        try container.encodeIfPresent(licenses, forKey: .licenses)
+        // acceptedJobs, appliedJobs, references, resumeLastUploaded, membershipPlanActive excluded
+    }
+
+    // MARK: - Profile completion (mirrors webapp logic)
+    // Each entry: (label, isFilled). Matches the webapp's field counting approach.
+    private var profileFields: [(String, Bool)] {
+        [
+            ("First Name",          !isFieldEmpty(firstName)),
+            ("Last Name",           !isFieldEmpty(lastName)),
+            ("Email",               !isFieldEmpty(email)),
+            ("Phone",               !isFieldEmpty(phone)),
+            ("Address",             !isFieldEmpty(address)),
+            ("City",                !isFieldEmpty(city)),
+            ("State",               !isFieldEmpty(state)),
+            ("Zip Code",            !isFieldEmpty(zipCode)),
+            ("Country of Residence",!isFieldEmpty(countryOfResidence)),
+            ("Resume",              !isFieldEmpty(resumeFileName)),
+            ("Transcript",          !isFieldEmpty(transcriptFileName)),
+            ("LinkedIn",            !isFieldEmpty(linkedIn)),
+            ("GitHub",              !isFieldEmpty(github)),
+            ("Portfolio",           !isFieldEmpty(portfolio)),
+            ("Website",             !isFieldEmpty(website)),
+            ("Skills",              !(skills?.isEmpty ?? true)),
+            ("Certifications",      !(certifications?.isEmpty ?? true)),
+            ("Career Summary",      !isFieldEmpty(careerSummaryHeadline)),
+            ("Experience Level",    !(experienceLevel?.isEmpty ?? true)),
+            ("Additional Info",     !isFieldEmpty(additionalInformation)),
+            ("Desired Salary",      desiredSalary != nil),
+            ("Available Start Date",!isFieldEmpty(availableStartDate)),
+            ("Birthday",            !isFieldEmpty(birthday)),
+            ("Preferred Locations", !(preferredJobLocations?.isEmpty ?? true)),
+            ("Job Categories",      !(jobCategoryInterests?.isEmpty ?? true)),
+            ("Looking For",         !(lookingForInCompany?.isEmpty ?? true)),
+            ("Authorized (US)",     !isFieldEmpty(authorizedToWorkInUS)),
+            ("Authorized (CA)",     !isFieldEmpty(authorizedToWorkInCA)),
+            ("US Citizen",          !isFieldEmpty(isUsCitizen)),
+            ("Sponsorship",         !isFieldEmpty(sponsorship)),
+            ("Security Clearance",  !isFieldEmpty(securityClearance)),
+            ("Pronouns",            !isFieldEmpty(pronouns)),
+            ("Driver's License",    !isFieldEmpty(hasDriversLicenseAndVehicle)),
+            ("Relocate",            !isFieldEmpty(willingToRelocate)),
+            ("Commute",             !isFieldEmpty(willingToCommute)),
+            ("Gender",              !isFieldEmpty(gender)),
+            ("Race / Ethnicity",    !(ethnicity?.isEmpty ?? true)),
+            ("Veteran Status",      !isFieldEmpty(veteranStatus)),
+            ("Disability Status",   !isFieldEmpty(disabilityStatus)),
+            ("References",          !(references?.isEmpty ?? true)),
+        ]
+    }
+
+    private func isFieldEmpty(_ value: String?) -> Bool {
+        value == nil || value?.trimmingCharacters(in: .whitespaces).isEmpty == true
+    }
+
+    var missingFields: [String] {
+        profileFields.filter { !$0.1 }.map { $0.0 }
     }
 
     var completionPercentage: Int {
-        var score = 0
-        let total = 10
-        if firstName != nil && lastName != nil { score += 1 }
-        if email != nil { score += 1 }
-        if phone != nil { score += 1 }
-        if workAuthorization != nil || authorizedToWorkInUS != nil { score += 1 }
-        if resumeFileName != nil { score += 1 }
-        if !(skills?.isEmpty ?? true) { score += 1 }
-        if !(workHistory?.isEmpty ?? true) { score += 1 }
-        if !(educationHistory?.isEmpty ?? true) { score += 1 }
-        if jobPreferences != nil { score += 1 }
-        if city != nil || address != nil { score += 1 }
-        return Int((Double(score) / Double(total)) * 100)
+        let total = profileFields.count
+        let filled = profileFields.filter { $0.1 }.count
+        guard total > 0 else { return 0 }
+        return Int((Double(filled) / Double(total)) * 100)
     }
 }
 
@@ -184,7 +278,6 @@ struct UserProfile: Codable {
 struct AnyCodable: Codable {
     init() {}
     init(from decoder: Decoder) throws {
-        // Accept any JSON value without crashing
         _ = try? decoder.singleValueContainer()
     }
     func encode(to encoder: Encoder) throws {
@@ -254,7 +347,7 @@ struct CertificationEntry: Codable, Identifiable {
 }
 
 struct JobPreferences: Codable {
-    var jobTypes: [String]?       // "Full-time", "Part-time", "Contract", "Remote"
+    var jobTypes: [String]?
     var industries: [String]?
     var locations: [PreferredLocation]?
     var salaryMin: Double?
@@ -267,6 +360,7 @@ struct PreferredLocation: Codable, Identifiable {
     var city: String?
     var state: String?
     var country: String?
+    var isRemote: Bool?
 }
 
 struct EEOData: Codable {

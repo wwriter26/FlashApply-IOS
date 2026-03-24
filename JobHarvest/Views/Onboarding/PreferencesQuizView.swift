@@ -23,8 +23,29 @@ struct PreferencesQuizView: View {
     @State private var showDocumentPicker = false
     @State private var showSkipConfirm = false
 
-    private let totalSteps = 5
+    // New fields
+    @State private var experienceLevel: [String] = []
+    @State private var careerSummary = ""
+    @State private var linkedInURL = ""
+    @State private var githubURL = ""
+    @State private var portfolioURL = ""
+    @State private var websiteURL = ""
+    @State private var desiredSalary = ""
+    @State private var locationCity = ""
+    @State private var locationState = ""
+    @State private var willingToRelocate = "Yes"
+    @State private var jobCategories: [String] = []
+
+    private let totalSteps = 8
     private let workAuthOptions = ["US Citizen", "Green Card", "H-1B Visa", "OPT/CPT", "Other"]
+    private let experienceLevelOptions = ["Internship", "Entry Level & New Grad", "Mid-Level", "Senior", "Lead / Principal", "Executive"]
+    private let jobCategoryOptions = [
+        "Software Development", "AI & Machine Learning", "Data Science",
+        "Product Management", "Design / UX", "Marketing",
+        "Sales", "Finance", "Operations",
+        "Human Resources", "Customer Success", "Healthcare",
+        "Education", "Legal", "Information Technology (IT)"
+    ]
     private let suggestedSkills = [
         "Python", "JavaScript", "TypeScript", "Swift", "Java", "C++", "SQL", "Go", "Rust",
         "React", "Node.js", "AWS", "Docker", "Kubernetes",
@@ -46,6 +67,17 @@ struct PreferencesQuizView: View {
         static let jobTypes = "quiz_jobTypes"
         static let remoteOnly = "quiz_remoteOnly"
         static let resumeFileName = "quiz_resumeFileName"
+        static let experienceLevel = "quiz_experienceLevel"
+        static let careerSummary = "quiz_careerSummary"
+        static let linkedInURL = "quiz_linkedInURL"
+        static let githubURL = "quiz_githubURL"
+        static let portfolioURL = "quiz_portfolioURL"
+        static let websiteURL = "quiz_websiteURL"
+        static let desiredSalary = "quiz_desiredSalary"
+        static let locationCity = "quiz_locationCity"
+        static let locationState = "quiz_locationState"
+        static let willingToRelocate = "quiz_willingToRelocate"
+        static let jobCategories = "quiz_jobCategories"
     }
 
     static func clearSavedQuizState() {
@@ -53,12 +85,18 @@ struct PreferencesQuizView: View {
         [QuizKeys.currentStep, QuizKeys.firstName, QuizKeys.lastName,
          QuizKeys.phone, QuizKeys.workAuth, QuizKeys.requiresSponsorship,
          QuizKeys.skills, QuizKeys.jobTypes, QuizKeys.remoteOnly,
-         QuizKeys.resumeFileName].forEach { defaults.removeObject(forKey: $0) }
+         QuizKeys.resumeFileName, QuizKeys.experienceLevel, QuizKeys.careerSummary,
+         QuizKeys.linkedInURL, QuizKeys.githubURL, QuizKeys.portfolioURL,
+         QuizKeys.websiteURL, QuizKeys.desiredSalary, QuizKeys.locationCity,
+         QuizKeys.locationState, QuizKeys.willingToRelocate, QuizKeys.jobCategories
+        ].forEach { defaults.removeObject(forKey: $0) }
     }
 
     var body: some View {
         quizStackWithPersistence
     }
+
+    // MARK: - Persistence chain (split to avoid type-checker timeout)
 
     private var quizStackWithSheet: some View {
         quizStack
@@ -82,7 +120,7 @@ struct PreferencesQuizView: View {
             .onChange(of: workAuth) { v in UserDefaults.standard.set(v, forKey: QuizKeys.workAuth) }
     }
 
-    private var quizStackWithPersistence: some View {
+    private var quizStackWithPersistenceB: some View {
         quizStackWithPersistenceA
             .onChange(of: requiresSponsorship) { v in UserDefaults.standard.set(v, forKey: QuizKeys.requiresSponsorship) }
             .onChange(of: skills) { v in UserDefaults.standard.set(v, forKey: QuizKeys.skills) }
@@ -91,24 +129,45 @@ struct PreferencesQuizView: View {
             .onChange(of: resumeFileName) { v in UserDefaults.standard.set(v, forKey: QuizKeys.resumeFileName) }
     }
 
+    private var quizStackWithPersistenceC: some View {
+        quizStackWithPersistenceB
+            .onChange(of: experienceLevel) { v in UserDefaults.standard.set(v, forKey: QuizKeys.experienceLevel) }
+            .onChange(of: careerSummary) { v in UserDefaults.standard.set(v, forKey: QuizKeys.careerSummary) }
+            .onChange(of: linkedInURL) { v in UserDefaults.standard.set(v, forKey: QuizKeys.linkedInURL) }
+            .onChange(of: githubURL) { v in UserDefaults.standard.set(v, forKey: QuizKeys.githubURL) }
+            .onChange(of: portfolioURL) { v in UserDefaults.standard.set(v, forKey: QuizKeys.portfolioURL) }
+    }
+
+    private var quizStackWithPersistence: some View {
+        quizStackWithPersistenceC
+            .onChange(of: websiteURL) { v in UserDefaults.standard.set(v, forKey: QuizKeys.websiteURL) }
+            .onChange(of: desiredSalary) { v in UserDefaults.standard.set(v, forKey: QuizKeys.desiredSalary) }
+            .onChange(of: locationCity) { v in UserDefaults.standard.set(v, forKey: QuizKeys.locationCity) }
+            .onChange(of: locationState) { v in UserDefaults.standard.set(v, forKey: QuizKeys.locationState) }
+            .onChange(of: willingToRelocate) { v in UserDefaults.standard.set(v, forKey: QuizKeys.willingToRelocate) }
+            .onChange(of: jobCategories) { v in UserDefaults.standard.set(v, forKey: QuizKeys.jobCategories) }
+    }
+
+    // MARK: - Main Quiz Layout
+
     private var quizStack: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Progress bar
                 progressBar
 
-                // Step content
                 TabView(selection: $currentStep) {
                     step1_Resume.tag(0)
                     step2_Name.tag(1)
                     step3_Contact.tag(2)
                     step4_WorkAuth.tag(3)
-                    step5_Preferences.tag(4)
+                    step5_Experience.tag(4)
+                    step6_Links.tag(5)
+                    step7_LocationSalary.tag(6)
+                    step8_Preferences.tag(7)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: currentStep)
 
-                // Navigation buttons
                 navigationButtons
                     .padding(.horizontal, 24)
                     .padding(.bottom, 32)
@@ -119,10 +178,8 @@ struct PreferencesQuizView: View {
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Skip") {
-                        showSkipConfirm = true
-                    }
-                    .foregroundColor(.flashTextSecondary)
+                    Button("Skip") { showSkipConfirm = true }
+                        .foregroundColor(.flashTextSecondary)
                 }
             }
             .confirmationDialog("Skip Profile Setup?", isPresented: $showSkipConfirm, titleVisibility: .visible) {
@@ -132,7 +189,7 @@ struct PreferencesQuizView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("You'll need to upload a resume before you can start swiping on jobs. You can complete your profile anytime from the Profile tab.")
+                Text("The more you fill out, the better your job matches will be. You'll also need a resume before you can start swiping. You can complete your profile anytime from the Profile tab.")
             }
         }
     }
@@ -149,11 +206,21 @@ struct PreferencesQuizView: View {
         jobTypes = defaults.stringArray(forKey: QuizKeys.jobTypes) ?? []
         remoteOnly = defaults.bool(forKey: QuizKeys.remoteOnly)
         resumeFileName = defaults.string(forKey: QuizKeys.resumeFileName) ?? ""
-        // Note: resumeData (binary) is NOT persisted -- user must re-select PDF after force-quit
-        // But resumeFileName is preserved so the UI shows the previous selection name
+        experienceLevel = defaults.stringArray(forKey: QuizKeys.experienceLevel) ?? []
+        careerSummary = defaults.string(forKey: QuizKeys.careerSummary) ?? ""
+        linkedInURL = defaults.string(forKey: QuizKeys.linkedInURL) ?? ""
+        githubURL = defaults.string(forKey: QuizKeys.githubURL) ?? ""
+        portfolioURL = defaults.string(forKey: QuizKeys.portfolioURL) ?? ""
+        websiteURL = defaults.string(forKey: QuizKeys.websiteURL) ?? ""
+        desiredSalary = defaults.string(forKey: QuizKeys.desiredSalary) ?? ""
+        locationCity = defaults.string(forKey: QuizKeys.locationCity) ?? ""
+        locationState = defaults.string(forKey: QuizKeys.locationState) ?? ""
+        willingToRelocate = defaults.string(forKey: QuizKeys.willingToRelocate) ?? "Yes"
+        jobCategories = defaults.stringArray(forKey: QuizKeys.jobCategories) ?? []
     }
 
     // MARK: - Progress Bar
+
     private var progressBar: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
@@ -167,7 +234,8 @@ struct PreferencesQuizView: View {
         .frame(height: 4)
     }
 
-    // MARK: - Step 1: Resume (required)
+    // MARK: - Step 1: Resume
+
     private var step1_Resume: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -191,9 +259,9 @@ struct PreferencesQuizView: View {
                 }
 
                 if resumeData == nil {
-                    Text("A resume is required to continue.")
+                    Text("A resume is required to start swiping on jobs.")
                         .font(.caption)
-                        .foregroundColor(.red)
+                        .foregroundColor(.orange)
                 }
             }
             .padding(24)
@@ -201,6 +269,7 @@ struct PreferencesQuizView: View {
     }
 
     // MARK: - Step 2: Name
+
     private var step2_Name: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -215,6 +284,7 @@ struct PreferencesQuizView: View {
     }
 
     // MARK: - Step 3: Contact
+
     private var step3_Contact: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -223,12 +293,15 @@ struct PreferencesQuizView: View {
                     .keyboardType(.phonePad)
                     .textContentType(.telephoneNumber)
                     .quizFieldStyle()
+                Text("Optional — but many applications require a phone number.")
+                    .font(.caption).foregroundColor(.secondary)
             }
             .padding(24)
         }
     }
 
     // MARK: - Step 4: Work Authorization
+
     private var step4_WorkAuth: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -249,31 +322,152 @@ struct PreferencesQuizView: View {
                     }
                     .foregroundColor(.primary)
                 }
-                Picker("Requires Sponsorship", selection: $requiresSponsorship) {
-                    Text("Yes").tag("Yes")
-                    Text("No").tag("No")
+                HStack {
+                    Text("Requires Sponsorship")
+                    Spacer()
+                    Picker("", selection: $requiresSponsorship) {
+                        Text("Yes").tag("Yes")
+                        Text("No").tag("No")
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 140)
                 }
-                .pickerStyle(.segmented)
                 .padding(.top, 8)
             }
             .padding(24)
         }
     }
 
-    // MARK: - Step 5: Job Preferences
-    private var step5_Preferences: some View {
+    // MARK: - Step 5: Experience Level
+
+    private var step5_Experience: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                stepHeader(title: "Job Preferences", subtitle: "Step 5 of \(totalSteps)")
+                stepHeader(title: "Experience Level", subtitle: "Step 5 of \(totalSteps)")
+                Text("Select all that apply — this helps match you with the right roles.")
+                    .font(.caption).foregroundColor(.secondary)
+
+                ForEach(experienceLevelOptions, id: \.self) { level in
+                    Button(action: {
+                        if experienceLevel.contains(level) {
+                            experienceLevel.removeAll { $0 == level }
+                        } else {
+                            experienceLevel.append(level)
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: experienceLevel.contains(level) ? "checkmark.square.fill" : "square")
+                                .foregroundColor(experienceLevel.contains(level) ? .flashTeal : .gray)
+                            Text(level)
+                            Spacer()
+                        }
+                        .padding()
+                        .background(experienceLevel.contains(level) ? Color.flashTeal.opacity(0.1) : Color.white)
+                        .cornerRadius(10)
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(experienceLevel.contains(level) ? Color.flashTeal : Color.gray.opacity(0.3)))
+                    }
+                    .foregroundColor(.primary)
+                }
+
+                Divider().padding(.vertical, 4)
+
+                Text("Career Summary").font(.headline)
+                Text("A short headline about your experience (optional)")
+                    .font(.caption).foregroundColor(.secondary)
+                TextField("e.g. Full-Stack Developer with 3 years experience", text: $careerSummary)
+                    .quizFieldStyle()
+            }
+            .padding(24)
+        }
+    }
+
+    // MARK: - Step 6: Links
+
+    private var step6_Links: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                stepHeader(title: "Your Links", subtitle: "Step 6 of \(totalSteps)")
+                Text("Add any profiles or portfolios. All optional — but LinkedIn is used by most applications.")
+                    .font(.caption).foregroundColor(.secondary)
+
+                linkField(icon: "link", placeholder: "LinkedIn URL", text: $linkedInURL)
+                linkField(icon: "chevron.left.forwardslash.chevron.right", placeholder: "GitHub URL", text: $githubURL)
+                linkField(icon: "globe", placeholder: "Portfolio URL", text: $portfolioURL)
+                linkField(icon: "safari", placeholder: "Website URL", text: $websiteURL)
+            }
+            .padding(24)
+        }
+    }
+
+    private func linkField(icon: String, placeholder: String, text: Binding<String>) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(.flashTeal)
+                .frame(width: 24)
+            TextField(placeholder, text: text)
+                .keyboardType(.URL)
+                .autocapitalization(.none)
+                .textContentType(.URL)
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(10)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.25)))
+    }
+
+    // MARK: - Step 7: Location & Salary
+
+    private var step7_LocationSalary: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                stepHeader(title: "Location & Salary", subtitle: "Step 7 of \(totalSteps)")
+
+                Text("Where are you located?").font(.headline)
+                HStack(spacing: 12) {
+                    TextField("City", text: $locationCity).quizFieldStyle()
+                    TextField("State", text: $locationState).quizFieldStyle()
+                }
+
+                HStack {
+                    Text("Open to relocation?")
+                    Spacer()
+                    Picker("", selection: $willingToRelocate) {
+                        Text("Yes").tag("Yes")
+                        Text("No").tag("No")
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 140)
+                }
+
+                Divider().padding(.vertical, 4)
+
+                Text("Desired Salary").font(.headline)
+                Text("Annual salary in USD (optional)")
+                    .font(.caption).foregroundColor(.secondary)
+                HStack {
+                    Text("$")
+                        .foregroundColor(.secondary)
+                    TextField("e.g. 75000", text: $desiredSalary)
+                        .keyboardType(.numberPad)
+                }
+                .quizFieldStyle()
+            }
+            .padding(24)
+        }
+    }
+
+    // MARK: - Step 8: Job Preferences (Skills, Types, Categories)
+
+    private var step8_Preferences: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                stepHeader(title: "Job Preferences", subtitle: "Step 8 of \(totalSteps)")
 
                 Text("Job Type").font(.headline)
                 ForEach(["Internship", "Part-Time", "Full-Time", "Contract"], id: \.self) { type in
                     Button(action: {
-                        if jobTypes.contains(type) {
-                            jobTypes.removeAll { $0 == type }
-                        } else {
-                            jobTypes.append(type)
-                        }
+                        if jobTypes.contains(type) { jobTypes.removeAll { $0 == type } }
+                        else { jobTypes.append(type) }
                     }) {
                         HStack {
                             Image(systemName: jobTypes.contains(type) ? "checkmark.square.fill" : "square")
@@ -288,20 +482,36 @@ struct PreferencesQuizView: View {
 
                 Toggle("Remote Only", isOn: $remoteOnly).tint(.flashTeal)
 
-                Divider().padding(.vertical, 8)
+                Divider().padding(.vertical, 4)
+
+                Text("Job Categories").font(.headline)
+                Text("What fields interest you?")
+                    .font(.caption).foregroundColor(.secondary)
+                FlowLayout(items: jobCategoryOptions) { cat in
+                    Button(action: {
+                        if jobCategories.contains(cat) { jobCategories.removeAll { $0 == cat } }
+                        else { jobCategories.append(cat) }
+                    }) {
+                        Text(cat)
+                            .font(.callout)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(jobCategories.contains(cat) ? Color.flashTeal : Color.flashTeal.opacity(0.1))
+                            .foregroundColor(jobCategories.contains(cat) ? .white : .flashTeal)
+                            .cornerRadius(20)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Divider().padding(.vertical, 4)
 
                 Text("Skills").font(.headline)
                 Text("Select skills relevant to your job search")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
+                    .font(.caption).foregroundColor(.secondary)
                 FlowLayout(items: suggestedSkills) { skill in
                     Button(action: {
-                        if skills.contains(skill) {
-                            skills.removeAll { $0 == skill }
-                        } else {
-                            skills.append(skill)
-                        }
+                        if skills.contains(skill) { skills.removeAll { $0 == skill } }
+                        else { skills.append(skill) }
                     }) {
                         Text(skill)
                             .font(.callout)
@@ -323,6 +533,7 @@ struct PreferencesQuizView: View {
     }
 
     // MARK: - Navigation Buttons
+
     private var navigationButtons: some View {
         HStack(spacing: 16) {
             if currentStep > 0 {
@@ -333,6 +544,7 @@ struct PreferencesQuizView: View {
             if currentStep < totalSteps - 1 {
                 Button("Next") { currentStep += 1 }
                     .primaryButtonStyle()
+                    .opacity(canAdvance ? 1.0 : 0.5)
                     .disabled(!canAdvance)
             } else {
                 Button(action: submitProfile) {
@@ -357,35 +569,53 @@ struct PreferencesQuizView: View {
     }
 
     // MARK: - Submit
+
     private func submitProfile() {
         isSubmitting = true
         error = nil
         Task {
             do {
-                // STEP 1: Merge quiz answers into the shared VM's profile FIRST
-                // This must happen BEFORE uploadResume, because uploadResume POSTs
-                // the full profileVM.profile to the backend.
+                // Merge quiz answers into profile
                 profileVM.profile.firstName = firstName
                 profileVM.profile.lastName = lastName
                 if !phone.isEmpty { profileVM.profile.phone = phone }
                 profileVM.profile.workAuthorization = workAuth
                 profileVM.profile.sponsorship = requiresSponsorship
                 if !resumeFileName.isEmpty { profileVM.profile.resumeFileName = resumeFileName }
+
+                // Experience
+                if !experienceLevel.isEmpty { profileVM.profile.experienceLevel = experienceLevel }
+                if !careerSummary.isEmpty { profileVM.profile.careerSummaryHeadline = careerSummary }
+
+                // Links
+                if !linkedInURL.isEmpty { profileVM.profile.linkedIn = linkedInURL }
+                if !githubURL.isEmpty { profileVM.profile.github = githubURL }
+                if !portfolioURL.isEmpty { profileVM.profile.portfolio = portfolioURL }
+                if !websiteURL.isEmpty { profileVM.profile.website = websiteURL }
+
+                // Location & Salary
+                if !locationCity.isEmpty { profileVM.profile.city = locationCity }
+                if !locationState.isEmpty { profileVM.profile.state = locationState }
+                profileVM.profile.willingToRelocate = willingToRelocate
+                if let salary = Double(desiredSalary) { profileVM.profile.desiredSalary = salary }
+
+                // Preferences
                 profileVM.profile.jobPreferences = JobPreferences(
                     jobTypes: jobTypes.isEmpty ? nil : jobTypes,
                     remoteOnly: remoteOnly
                 )
                 if !skills.isEmpty { profileVM.profile.skills = skills }
+                if !jobCategories.isEmpty { profileVM.profile.jobCategoryInterests = jobCategories }
 
-                // STEP 2: Upload resume (which POSTs profileVM.profile including merged fields)
+                // Upload resume
                 if let data = resumeData, !resumeFileName.isEmpty {
                     await profileVM.uploadResume(data: data, fileName: resumeFileName)
                 }
 
-                // STEP 3: Save full profile (in case no resume, or to ensure all fields saved)
+                // Save full profile
                 try await profileVM.updateProfile(profileVM.profile)
 
-                // STEP 4: Mark onboarding complete
+                // Mark onboarding complete
                 await authVM.markOnboardingComplete()
                 PreferencesQuizView.clearSavedQuizState()
             } catch {

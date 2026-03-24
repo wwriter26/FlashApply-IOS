@@ -5,6 +5,8 @@ struct LinksSection: View {
     @State private var linkedIn = ""
     @State private var github = ""
     @State private var portfolio = ""
+    @State private var website = ""
+    @State private var twitter = ""
     @State private var isSaving = false
     @State private var saved = false
     @Environment(\.dismiss) private var dismiss
@@ -24,7 +26,17 @@ struct LinksSection: View {
                 }
                 HStack {
                     Image(systemName: "globe").foregroundColor(.flashTeal)
-                    TextField("Portfolio / Website URL", text: $portfolio)
+                    TextField("Portfolio URL", text: $portfolio)
+                        .keyboardType(.URL).autocapitalization(.none)
+                }
+                HStack {
+                    Image(systemName: "safari").foregroundColor(.flashTeal)
+                    TextField("Website URL", text: $website)
+                        .keyboardType(.URL).autocapitalization(.none)
+                }
+                HStack {
+                    Image(systemName: "at").foregroundColor(.blue)
+                    TextField("Twitter / X URL", text: $twitter)
                         .keyboardType(.URL).autocapitalization(.none)
                 }
             }
@@ -46,6 +58,8 @@ struct LinksSection: View {
         linkedIn  = profileVM.profile.linkedIn ?? ""
         github    = profileVM.profile.github ?? ""
         portfolio = profileVM.profile.portfolio ?? ""
+        website   = profileVM.profile.website ?? ""
+        twitter   = profileVM.profile.twitter ?? ""
     }
 
     private func save() {
@@ -54,6 +68,8 @@ struct LinksSection: View {
         updated.linkedIn  = linkedIn.isEmpty ? nil : linkedIn
         updated.github    = github.isEmpty ? nil : github
         updated.portfolio = portfolio.isEmpty ? nil : portfolio
+        updated.website   = website.isEmpty ? nil : website
+        updated.twitter   = twitter.isEmpty ? nil : twitter
         Task {
             try? await profileVM.updateProfile(updated)
             isSaving = false

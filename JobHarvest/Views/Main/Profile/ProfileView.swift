@@ -20,38 +20,52 @@ struct ProfileView: View {
                         }
                         ProgressView(value: Double(profileVM.profile.completionPercentage), total: 100)
                             .tint(.flashTeal)
+
+                        let missing = profileVM.profile.missingFields
+                        if !missing.isEmpty {
+                            Text("Missing: \(missing.joined(separator: ", "))")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
                     }
                     .padding(.vertical, 4)
                 }
 
-                // Sections
+                // Personal
                 Section("Personal") {
                     NavigationLink(destination: PersonalInfoSection().environmentObject(profileVM)) {
                         profileRow(icon: "person.fill", title: "Personal Info",
-                                   subtitle: profileVM.profile.firstName.map { "\($0) \(profileVM.profile.lastName ?? "")" })
+                                   subtitle: profileVM.profile.firstName.map { "\($0) \(profileVM.profile.lastName ?? "")" },
+                                   isMissing: profileVM.profile.firstName == nil)
                     }
                     NavigationLink(destination: AddressSection().environmentObject(profileVM)) {
                         profileRow(icon: "house.fill", title: "Address",
-                                   subtitle: profileVM.profile.city)
+                                   subtitle: [profileVM.profile.city, profileVM.profile.state].compactMap { $0 }.joined(separator: ", ").nilIfEmpty,
+                                   isMissing: profileVM.profile.city == nil && profileVM.profile.address == nil)
                     }
                     NavigationLink(destination: AuthorizationsSection().environmentObject(profileVM)) {
                         profileRow(icon: "checkmark.shield.fill", title: "Work Authorization",
-                                   subtitle: profileVM.profile.workAuthorization)
+                                   subtitle: profileVM.profile.authorizedToWorkInUS ?? profileVM.profile.workAuthorization,
+                                   isMissing: profileVM.profile.authorizedToWorkInUS == nil && profileVM.profile.workAuthorization == nil)
                     }
                 }
 
+                // Experience
                 Section("Experience") {
                     NavigationLink(destination: WorkHistorySection().environmentObject(profileVM)) {
                         profileRow(icon: "briefcase.fill", title: "Work History",
-                                   subtitle: "\(profileVM.profile.workHistory?.count ?? 0) entries")
+                                   subtitle: "\(profileVM.profile.workHistory?.count ?? 0) entries",
+                                   isMissing: profileVM.profile.workHistory?.isEmpty ?? true)
                     }
                     NavigationLink(destination: EducationSection().environmentObject(profileVM)) {
                         profileRow(icon: "graduationcap.fill", title: "Education",
-                                   subtitle: "\(profileVM.profile.education?.count ?? 0) entries")
+                                   subtitle: "\(profileVM.profile.education?.count ?? 0) entries",
+                                   isMissing: profileVM.profile.educationHistory?.isEmpty ?? true)
                     }
                     NavigationLink(destination: SkillsSection().environmentObject(profileVM)) {
                         profileRow(icon: "star.fill", title: "Skills",
-                                   subtitle: "\(profileVM.profile.skills?.count ?? 0) skills")
+                                   subtitle: "\(profileVM.profile.skills?.count ?? 0) skills",
+                                   isMissing: profileVM.profile.skills?.isEmpty ?? true)
                     }
                     NavigationLink(destination: CertificationsSection().environmentObject(profileVM)) {
                         profileRow(icon: "rosette", title: "Certifications",
@@ -59,17 +73,21 @@ struct ProfileView: View {
                     }
                 }
 
+                // Profile
                 Section("Profile") {
                     NavigationLink(destination: ResumeSection().environmentObject(profileVM)) {
                         profileRow(icon: "doc.fill", title: "Resume",
-                                   subtitle: profileVM.profile.resumeFileName ?? "Not uploaded")
+                                   subtitle: profileVM.profile.resumeFileName ?? "Not uploaded",
+                                   isMissing: profileVM.profile.resumeFileName == nil)
                     }
                     NavigationLink(destination: LinksSection().environmentObject(profileVM)) {
                         profileRow(icon: "link", title: "Links & Portfolio",
-                                   subtitle: profileVM.profile.linkedIn ?? "Not set")
+                                   subtitle: profileVM.profile.linkedIn ?? "Not set",
+                                   isMissing: profileVM.profile.linkedIn == nil || profileVM.profile.linkedIn?.isEmpty == true)
                     }
                 }
 
+                // Preferences
                 Section("Preferences") {
                     NavigationLink(destination: PreferencesSection().environmentObject(profileVM)) {
                         profileRow(icon: "slider.horizontal.3", title: "Job Preferences",
@@ -77,10 +95,11 @@ struct ProfileView: View {
                     }
                     NavigationLink(destination: LocationsSection().environmentObject(profileVM)) {
                         profileRow(icon: "mappin.circle.fill", title: "Preferred Locations",
-                                   subtitle: "\(profileVM.profile.jobPreferences?.locations?.count ?? 0) locations")
+                                   subtitle: "\(profileVM.profile.preferredJobLocations?.count ?? profileVM.profile.jobPreferences?.locations?.count ?? 0) locations")
                     }
                 }
 
+                // Additional
                 Section("Additional") {
                     NavigationLink(destination: EEOSection().environmentObject(profileVM)) {
                         profileRow(icon: "person.2.fill", title: "EEO Information",
@@ -99,13 +118,24 @@ struct ProfileView: View {
         }
     }
 
-    private func profileRow(icon: String, title: String, subtitle: String?) -> some View {
+    private func profileRow(icon: String, title: String, subtitle: String?, isMissing: Bool = false) -> some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
                 .foregroundColor(.flashTeal)
                 .frame(width: 24)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.subheadline.weight(.medium))
+                HStack(spacing: 6) {
+                    Text(title).font(.subheadline.weight(.medium))
+                    if isMissing {
+                        Text("Missing")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.orange)
+                            .cornerRadius(4)
+                    }
+                }
                 if let sub = subtitle, !sub.isEmpty {
                     Text(sub)
                         .font(.caption)
@@ -115,5 +145,12 @@ struct ProfileView: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+// MARK: - Helper
+private extension String {
+    var nilIfEmpty: String? {
+        isEmpty ? nil : self
     }
 }
