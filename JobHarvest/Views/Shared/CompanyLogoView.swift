@@ -1,6 +1,6 @@
 import SwiftUI
 
-// Fetches company logo from Clearbit using a domain (e.g. "google.com").
+// Fetches company logo from logo.dev using a domain (e.g. "google.com").
 // Pass companyData?.logoDomain for best results; falls back to companyId.
 // Shows a building placeholder on failure.
 struct CompanyLogoView: View {
@@ -10,7 +10,7 @@ struct CompanyLogoView: View {
     var body: some View {
         Group {
             if let domain = domain, !domain.isEmpty,
-               let url = URL(string: "https://logo.clearbit.com/\(domain)") {
+               let url = URL(string: "https://img.logo.dev/\(domain)?token=pk_a%5DMObGMfQ7y1P0eKVOGwiw&size=100&format=png") {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .success(let image):

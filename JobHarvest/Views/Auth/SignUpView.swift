@@ -77,6 +77,21 @@ struct SignUpView: View {
                                 .padding(.horizontal, 4)
                         }
 
+                        if !name.isEmpty || !email.isEmpty || !password.isEmpty || !confirmPassword.isEmpty {
+                            VStack(alignment: .leading, spacing: 2) {
+                                if !email.isEmpty && !email.isValidEmail {
+                                    Text("Enter a valid email address")
+                                        .foregroundColor(.red).font(.caption)
+                                }
+                                if !password.isEmpty && password.count < 8 {
+                                    Text("Password must be at least 8 characters")
+                                        .foregroundColor(.red).font(.caption)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 4)
+                        }
+
                         if let error = authVM.error {
                             Text(error)
                                 .foregroundColor(.red)
@@ -93,6 +108,7 @@ struct SignUpView: View {
                             }
                         }
                         .primaryButtonStyle()
+                        .opacity(formValid ? 1.0 : 0.5)
                         .disabled(!formValid || authVM.isLoading)
 
                         Text("By creating an account, you agree to our Terms of Service and Privacy Policy.")

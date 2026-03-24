@@ -18,23 +18,23 @@ struct JobCardView: View {
     enum SwipeDirection { case left, right }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            cardContent
-                .overlay(swipeOverlay)
+        VStack(spacing: 10) {
+            ZStack {
+                cardContent
+                    .overlay(swipeOverlay)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 580)
+            .background(Color.flashWhite)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: .black.opacity(0.06), radius: 2, x: 0, y: 1)
+            .shadow(color: .black.opacity(0.10), radius: 16, x: 0, y: 8)
+            .shadow(color: Color.flashTeal.opacity(0.06), radius: 24, x: 0, y: 12)
 
             if isTopCard {
                 actionButtons
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, 32)
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 640)
-        .background(Color.flashWhite)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .shadow(color: .black.opacity(0.06), radius: 2, x: 0, y: 1)
-        .shadow(color: .black.opacity(0.10), radius: 16, x: 0, y: 8)
-        .shadow(color: Color.flashTeal.opacity(0.06), radius: 24, x: 0, y: 12)
         .offset(x: isTopCard ? dragOffset.width : 0,
                 y: (isTopCard ? dragOffset.height * 0.2 : 0) + stackOffset)
         .rotationEffect(.degrees(isTopCard ? Double(dragOffset.width / 20) : 0))
@@ -58,7 +58,7 @@ struct JobCardView: View {
                 let threshold = swipeThreshold
                 if abs(value.translation.width) > threshold {
                     let isAccepting = value.translation.width > 0
-                    withAnimation(.easeOut(duration: 0.3)) {
+                    withAnimation(.easeOut(duration: 0.35)) {
                         dragOffset = CGSize(
                             width: isAccepting ? 600 : -600,
                             height: value.translation.height
@@ -74,7 +74,7 @@ struct JobCardView: View {
                         }
                     }
                 } else {
-                    withAnimation(.spring()) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                         dragOffset = .zero
                         swipeDirection = nil
                     }
@@ -153,25 +153,19 @@ struct JobCardView: View {
             cardHeader
             tabBar
             tabContent
-            // Subtle brand watermark at the base of the card content area
-            Image("jobHarvestTransparent")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 28, height: 28)
-                .opacity(0.12)
-                .padding(.bottom, 8)
         }
     }
 
     // MARK: - Card Header
     private var cardHeader: some View {
-        ZStack(alignment: .top) {
+        VStack(spacing: 0) {
+            // Gradient accent strip at top of card
             LinearGradient(
                 colors: [Color.flashTeal, Color.flashNavy],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .frame(height: 80)
+            .frame(height: 56)
             .clipShape(
                 UnevenRoundedRectangle(
                     topLeadingRadius: 24,
@@ -182,47 +176,45 @@ struct JobCardView: View {
                 )
             )
 
+            // Content row: logo on left, text to its right
             HStack(alignment: .top, spacing: 14) {
-                CompanyLogoView(domain: job.companyData?.logoDomain ?? job.companyId, size: 60)
+                CompanyLogoView(domain: job.companyData?.logoDomain ?? job.companyId, size: 52)
                     .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(Color.white, lineWidth: 2.5)
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Color.white, lineWidth: 2)
                     )
-                    .shadow(color: .black.opacity(0.14), radius: 8, x: 0, y: 4)
-                    .padding(.top, 20)
+                    .shadow(color: .black.opacity(0.10), radius: 6, x: 0, y: 3)
+                    .offset(y: -20) // Pull logo up to overlap the gradient strip
 
-                VStack(alignment: .leading, spacing: 3) {
-                    Spacer().frame(height: 56)
-
+                VStack(alignment: .leading, spacing: 4) {
                     Text(job.jobTitle ?? "Job Title")
-                        .font(.system(size: 17, weight: .bold))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.flashNavy)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(job.companyName ?? "Company")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.flashTextSecondary)
-                        .padding(.top, 6)
 
                     HStack(spacing: 8) {
                         if let loc = job.jobLocation {
                             HStack(spacing: 3) {
                                 Image(systemName: "mappin.circle.fill")
-                                    .font(.system(size: 11))
+                                    .font(.system(size: 10))
                                     .foregroundColor(.flashTeal)
                                 Text(loc)
-                                    .font(.system(size: 12))
+                                    .font(.system(size: 11))
                                     .foregroundColor(.flashTextSecondary)
                             }
                         }
                         if let type = job.jobType {
                             Text(type)
-                                .font(.system(size: 11, weight: .semibold))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
+                                .font(.system(size: 10, weight: .semibold))
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 2)
                                 .background(Color.flashTeal.opacity(0.12))
                                 .foregroundColor(.flashTeal)
                                 .clipShape(Capsule())
@@ -232,20 +224,20 @@ struct JobCardView: View {
                     if let pay = job.payEstimate {
                         HStack(spacing: 4) {
                             Image(systemName: "dollarsign.circle.fill")
-                                .font(.system(size: 12))
+                                .font(.system(size: 11))
                                 .foregroundColor(.flashOrange)
                             Text(pay.formattedString)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(.flashOrange)
                         }
-                        .padding(.top, 1)
                     }
                 }
+                .padding(.top, 4)
 
-                Spacer()
+                Spacer(minLength: 0)
 
-                VStack(spacing: 6) {
-                    Spacer().frame(height: 52)
+                // Match badges
+                VStack(spacing: 5) {
                     if job.greatMatch == true {
                         matchBadge(
                             text: "Great Match",
@@ -263,9 +255,10 @@ struct JobCardView: View {
                         )
                     }
                 }
+                .padding(.top, 4)
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 18)
+            .padding(.bottom, 12)
         }
     }
 
@@ -335,7 +328,7 @@ struct JobCardView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
         }
-        .frame(maxHeight: 360)
+        .frame(maxHeight: 320)
     }
 
     @ViewBuilder
@@ -446,9 +439,9 @@ struct JobCardView: View {
             // Reject button
             Button(action: {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                withAnimation(.easeOut(duration: 0.3)) { dragOffset = CGSize(width: -600, height: 0) }
+                withAnimation(.easeOut(duration: 0.35)) { dragOffset = CGSize(width: -600, height: 0) }
                 Task {
-                    try? await Task.sleep(nanoseconds: 300_000_000)
+                    try? await Task.sleep(nanoseconds: 350_000_000)
                     await onSwipe(false, [:])
                 }
             }) {
@@ -485,9 +478,9 @@ struct JobCardView: View {
                     showManualAnswers = true
                 } else {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    withAnimation(.easeOut(duration: 0.3)) { dragOffset = CGSize(width: 600, height: 0) }
+                    withAnimation(.easeOut(duration: 0.35)) { dragOffset = CGSize(width: 600, height: 0) }
                     Task {
-                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        try? await Task.sleep(nanoseconds: 350_000_000)
                         await onSwipe(true, [:])
                     }
                 }

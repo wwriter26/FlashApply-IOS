@@ -154,7 +154,7 @@ struct ApplyView: View {
                         JobCardView(
                             job: job,
                             isTopCard: topIndex == 0,
-                            stackOffset: CGFloat(topIndex) * 8
+                            stackOffset: CGFloat(topIndex) * 5
                         ) { isAccepting, answers in
                             await swipeJob(job: job, isAccepting: isAccepting, answers: answers)
                         }
@@ -163,7 +163,6 @@ struct ApplyView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 8)
 
             Spacer()
         }

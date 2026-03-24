@@ -23,7 +23,7 @@ struct UserProfile: Codable {
     var email: String?
     var phone: String?
     var workAuthorization: String?
-    var sponsorship: Bool?
+    var sponsorship: String?
 
     // Address — backend sends flat "address" string, but we also support structured fields
     var address: String?
@@ -67,7 +67,7 @@ struct UserProfile: Codable {
     var eeo: EEOData?
     var disabilityStatus: String?
     var gender: String?
-    var ethnicity: String?
+    var ethnicity: [String]?
     var veteranStatus: String?
 
     // Referral
@@ -91,16 +91,29 @@ struct UserProfile: Codable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case firstName, lastName, email, phone, workAuthorization, sponsorship
-        case address, street, city, state, zipCode, country, countryOfResidence
-        case workHistory, educationHistory, skills, certifications
+        case firstName, lastName, email, phone
+        case workAuthorization = "authorizedToWork"
+        case sponsorship = "requireSponsorship"
+        case address, street
+        case city = "homeCity"
+        case state = "homeState"
+        case zipCode = "zipcode"
+        case country, countryOfResidence
+        case workHistory = "jobHistory"
+        case educationHistory, skills, certifications
         case additionalInformation, careerSummaryHeadline
-        case linkedIn, github, portfolio, otherLinks
-        case resumeFileName, transcriptFileName
+        case linkedIn = "linkedin"
+        case github, portfolio, otherLinks
+        case resumeFileName = "resume"
+        case transcriptFileName = "transcript"
         case jobPreferences, desiredSalary, availableStartDate, birthday
         case authorizedToWorkInUS, authorizedToWorkInUK, authorizedToWorkInCA
-        case eeo, disabilityStatus, gender, ethnicity, veteranStatus
-        case referralCode, plan, stripeCustomerId
+        case eeo, disabilityStatus, gender
+        case ethnicity = "race"
+        case veteranStatus
+        case referralCode
+        case plan = "membershipPlan"
+        case stripeCustomerId
         case acceptedJobs, appliedJobs
     }
 
@@ -120,7 +133,7 @@ struct UserProfile: Codable {
         try container.encodeIfPresent(zipCode, forKey: .zipCode)
         try container.encodeIfPresent(country, forKey: .country)
         try container.encodeIfPresent(countryOfResidence, forKey: .countryOfResidence)
-        try container.encodeIfPresent(workHistory, forKey: .workHistory)
+        try container.encodeIfPresent(workHistory, forKey: .workHistory)  // encodes as "jobHistory"
         try container.encodeIfPresent(educationHistory, forKey: .educationHistory)
         try container.encodeIfPresent(skills, forKey: .skills)
         try container.encodeIfPresent(certifications, forKey: .certifications)
@@ -186,9 +199,24 @@ struct WorkHistoryEntry: Codable, Identifiable {
     var title: String?
     var startDate: String?
     var endDate: String?
+    var startDateYear: String?
+    var startDateMonth: String?
+    var endDateYear: String?
+    var endDateMonth: String?
     var current: Bool?
     var description: String?
     var location: String?
+    var industry: String?
+    var accomplishments: [String]?
+
+    private enum CodingKeys: String, CodingKey {
+        case company = "companyName"
+        case title = "jobTitle"
+        case startDate, endDate
+        case startDateYear, startDateMonth, endDateYear, endDateMonth
+        case current = "currentlyWorking"
+        case description, location, industry, accomplishments
+    }
 }
 
 struct EducationEntry: Codable, Identifiable {
@@ -198,9 +226,23 @@ struct EducationEntry: Codable, Identifiable {
     var field: String?
     var startDate: String?
     var endDate: String?
+    var startDateYear: String?
+    var startDateMonth: String?
+    var endDateYear: String?
+    var endDateMonth: String?
     var current: Bool?
     var gpa: String?
     var accomplishments: [String]?
+    var transcript: String?
+    var transcriptUrl: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case institution, degree
+        case field = "fieldOfStudy"
+        case startDate, endDate
+        case startDateYear, startDateMonth, endDateYear, endDateMonth
+        case current, gpa, accomplishments, transcript, transcriptUrl
+    }
 }
 
 struct CertificationEntry: Codable, Identifiable {

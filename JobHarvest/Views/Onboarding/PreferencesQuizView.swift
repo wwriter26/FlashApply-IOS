@@ -14,7 +14,7 @@ struct PreferencesQuizView: View {
     @State private var lastName = ""
     @State private var phone = ""
     @State private var workAuth = "US Citizen"
-    @State private var requiresSponsorship = false
+    @State private var requiresSponsorship = "No"
     @State private var skills: [String] = []
     @State private var jobTypes: [String] = []
     @State private var remoteOnly = false
@@ -144,7 +144,7 @@ struct PreferencesQuizView: View {
         lastName = defaults.string(forKey: QuizKeys.lastName) ?? ""
         phone = defaults.string(forKey: QuizKeys.phone) ?? ""
         workAuth = defaults.string(forKey: QuizKeys.workAuth) ?? "US Citizen"
-        requiresSponsorship = defaults.bool(forKey: QuizKeys.requiresSponsorship)
+        requiresSponsorship = defaults.string(forKey: QuizKeys.requiresSponsorship) ?? "No"
         skills = defaults.stringArray(forKey: QuizKeys.skills) ?? []
         jobTypes = defaults.stringArray(forKey: QuizKeys.jobTypes) ?? []
         remoteOnly = defaults.bool(forKey: QuizKeys.remoteOnly)
@@ -249,9 +249,12 @@ struct PreferencesQuizView: View {
                     }
                     .foregroundColor(.primary)
                 }
-                Toggle("Requires Sponsorship", isOn: $requiresSponsorship)
-                    .tint(.flashTeal)
-                    .padding(.top, 8)
+                Picker("Requires Sponsorship", selection: $requiresSponsorship) {
+                    Text("Yes").tag("Yes")
+                    Text("No").tag("No")
+                }
+                .pickerStyle(.segmented)
+                .padding(.top, 8)
             }
             .padding(24)
         }

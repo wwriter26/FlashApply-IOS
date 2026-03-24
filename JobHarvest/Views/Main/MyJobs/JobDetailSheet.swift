@@ -74,61 +74,59 @@ struct JobDetailSheet: View {
 
     // MARK: - Header
     private var jobHeader: some View {
-        ZStack(alignment: .bottomLeading) {
+        VStack(spacing: 0) {
+            // Accent gradient band
             let accentColor = (job.stage ?? .applied).color
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [accentColor.opacity(0.85), accentColor.opacity(0.55)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(height: 100)
+            LinearGradient(
+                colors: [accentColor.opacity(0.85), accentColor.opacity(0.55)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .frame(height: 80)
 
-            HStack(alignment: .bottom, spacing: 14) {
+            // Content below the band
+            HStack(alignment: .top, spacing: 14) {
                 CompanyLogoView(
                     domain: job.companyData?.logoDomain ?? job.companyId,
-                    size: 64
+                    size: 56
                 )
                 .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
-                .offset(y: 20)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .black.opacity(0.10), radius: 6, x: 0, y: 3)
+                .offset(y: -24)
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(job.jobTitle ?? "Job Title")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.flashNavy)
                         .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+
                     Text(job.companyName ?? "Company")
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(.white.opacity(0.85))
-                        .lineLimit(1)
-                }
-                .padding(.bottom, 8)
-            }
-            .padding(.horizontal, 16)
-        }
-        .padding(.bottom, 24)
-        .overlay(alignment: .bottom) {
-            HStack(spacing: 16) {
-                Spacer().frame(width: 94)
-                if let loc = job.jobLocation {
-                    Label(loc, systemImage: "mappin.circle.fill")
-                        .font(.caption)
                         .foregroundColor(.flashTextSecondary)
-                        .lineLimit(1)
+
+                    HStack(spacing: 12) {
+                        if let loc = job.jobLocation {
+                            Label(loc, systemImage: "mappin.circle.fill")
+                                .font(.caption)
+                                .foregroundColor(.flashTextSecondary)
+                                .lineLimit(1)
+                        }
+                        if let pay = job.payEstimate {
+                            Text(pay.formattedString)
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.flashOrange)
+                                .lineLimit(1)
+                        }
+                    }
                 }
-                if let pay = job.payEstimate {
-                    Text(pay.formattedString)
-                        .font(.caption.weight(.semibold))
-                        .foregroundColor(.flashOrange)
-                        .lineLimit(1)
-                }
+                .padding(.top, 8)
+
                 Spacer()
             }
-            .padding(.top, 20)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
         }
     }
 
@@ -227,27 +225,37 @@ struct JobDetailSheet: View {
 
     @ViewBuilder
     private var requirementsTab: some View {
-        if let reqs = detail.jobRequirements, !reqs.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
-                sectionLabel("Requirements")
-                bulletList(reqs)
+        if appliedJobsVM.selectedJobLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+        } else {
+            if let reqs = detail.jobRequirements, !reqs.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    sectionLabel("Requirements")
+                    bulletList(reqs)
+                }
             }
-        }
-        if let resps = detail.jobResponsibilities, !resps.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
-                sectionLabel("Responsibilities")
-                bulletList(resps)
+            if let resps = detail.jobResponsibilities, !resps.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    sectionLabel("Responsibilities")
+                    bulletList(resps)
+                }
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
-        }
-        if (detail.jobRequirements ?? []).isEmpty && (detail.jobResponsibilities ?? []).isEmpty {
-            emptyTabPlaceholder(icon: "list.bullet.clipboard", message: "No requirements listed.")
+            if (detail.jobRequirements ?? []).isEmpty && (detail.jobResponsibilities ?? []).isEmpty {
+                emptyTabPlaceholder(icon: "list.bullet.clipboard", message: "No requirements listed.")
+            }
         }
     }
 
     @ViewBuilder
     private var companyTab: some View {
-        if let company = detail.companyData {
+        if appliedJobsVM.selectedJobLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+        } else if let company = detail.companyData {
             VStack(alignment: .leading, spacing: 14) {
                 if let tagline = company.tagline {
                     Text(tagline)

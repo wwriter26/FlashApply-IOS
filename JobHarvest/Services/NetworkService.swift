@@ -152,6 +152,7 @@ final class NetworkService {
                 #endif
                 do {
                     let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
                     return try decoder.decode(T.self, from: data)
                 } catch {
                     let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"

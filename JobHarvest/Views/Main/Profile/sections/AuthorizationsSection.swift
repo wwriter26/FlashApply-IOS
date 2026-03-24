@@ -3,7 +3,7 @@ import SwiftUI
 struct AuthorizationsSection: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @State private var workAuth = "US Citizen"
-    @State private var requiresSponsorship = false
+    @State private var requiresSponsorship = "No"
     @State private var isSaving = false
     @State private var saved = false
     @Environment(\.dismiss) private var dismiss
@@ -20,8 +20,11 @@ struct AuthorizationsSection: View {
                 .pickerStyle(.inline)
             }
             Section("Sponsorship") {
-                Toggle("Requires Visa Sponsorship", isOn: $requiresSponsorship)
-                    .tint(.flashTeal)
+                Picker("Requires Visa Sponsorship", selection: $requiresSponsorship) {
+                    Text("Yes").tag("Yes")
+                    Text("No").tag("No")
+                }
+                .pickerStyle(.segmented)
             }
         }
         .navigationTitle("Work Authorization")
@@ -38,7 +41,7 @@ struct AuthorizationsSection: View {
 
     private func load() {
         workAuth = profileVM.profile.workAuthorization ?? "US Citizen"
-        requiresSponsorship = profileVM.profile.sponsorship ?? false
+        requiresSponsorship = profileVM.profile.sponsorship ?? "No"
     }
 
     private func save() {
