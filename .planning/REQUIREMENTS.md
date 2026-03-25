@@ -44,7 +44,7 @@
 - [ ] **SWIPE-03**: User sees a clear, friendly message when swipe limit is reached (not a raw 403 error)
 - [ ] **SWIPE-04**: Progressive swipe-limit warning appears before the hard limit is hit
 - [ ] **SWIPE-05**: New jobs load automatically as the deck runs low (prefetch works)
-- [ ] **SWIPE-06**: Empty deck state is handled with a friendly UI (no blank screen)
+- [x] **SWIPE-06**: Empty deck state is handled with a friendly UI (no blank screen)
 - [ ] **SWIPE-07**: `isGreatFit` badge is displayed on job cards when applicable
 
 ### Applied Jobs
@@ -65,10 +65,10 @@
 
 ### Error Handling & Polish
 
-- [ ] **UX-01**: All error messages shown to users are human-readable (not raw AWS/Cognito SDK strings)
-- [ ] **UX-02**: All loading states have a spinner or skeleton UI (no blank screens during fetches)
+- [x] **UX-01**: All error messages shown to users are human-readable (not raw AWS/Cognito SDK strings)
+- [x] **UX-02**: All loading states have a spinner or skeleton UI (no blank screens during fetches)
 - [ ] **UX-03**: All empty states have friendly messaging and a clear action (no blank screens)
-- [ ] **UX-04**: Network failure on any screen shows a retry option
+- [x] **UX-04**: Network failure on any screen shows a retry option
 
 ## v2 Requirements
 
@@ -132,7 +132,7 @@
 | SWIPE-03 | Phase 3 | Pending |
 | SWIPE-04 | Phase 3 | Pending |
 | SWIPE-05 | Phase 3 | Pending |
-| SWIPE-06 | Phase 3 | Pending |
+| SWIPE-06 | Phase 3 | Complete |
 | SWIPE-07 | Phase 3 | Pending |
 | JOBS-01 | Phase 3 | Pending |
 | JOBS-02 | Phase 3 | Pending |
@@ -144,10 +144,10 @@
 | PAY-03 | Phase 3 | Pending |
 | PAY-04 | Phase 3 | Pending |
 | PAY-05 | Phase 3 | Pending |
-| UX-01 | Phase 3 | Pending |
-| UX-02 | Phase 3 | Pending |
+| UX-01 | Phase 3 | Complete |
+| UX-02 | Phase 3 | Complete |
 | UX-03 | Phase 3 | Pending |
-| UX-04 | Phase 3 | Pending |
+| UX-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 39 total
