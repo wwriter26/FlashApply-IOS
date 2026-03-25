@@ -39,13 +39,13 @@
 
 ### Swipe / Job Cards
 
-- [ ] **SWIPE-01**: User can swipe right to apply or left to skip a job
-- [ ] **SWIPE-02**: Card exit animation completes correctly for both swipe gestures and button taps
-- [ ] **SWIPE-03**: User sees a clear, friendly message when swipe limit is reached (not a raw 403 error)
-- [ ] **SWIPE-04**: Progressive swipe-limit warning appears before the hard limit is hit
-- [ ] **SWIPE-05**: New jobs load automatically as the deck runs low (prefetch works)
+- [x] **SWIPE-01**: User can swipe right to apply or left to skip a job
+- [x] **SWIPE-02**: Card exit animation completes correctly for both swipe gestures and button taps
+- [x] **SWIPE-03**: User sees a clear, friendly message when swipe limit is reached (not a raw 403 error)
+- [x] **SWIPE-04**: Progressive swipe-limit warning appears before the hard limit is hit
+- [x] **SWIPE-05**: New jobs load automatically as the deck runs low (prefetch works)
 - [x] **SWIPE-06**: Empty deck state is handled with a friendly UI (no blank screen)
-- [ ] **SWIPE-07**: `isGreatFit` badge is displayed on job cards when applicable
+- [x] **SWIPE-07**: `isGreatFit` badge is displayed on job cards when applicable
 
 ### Applied Jobs
 
@@ -127,13 +127,13 @@
 | PROF-04 | Phase 3 | Pending |
 | PROF-05 | Phase 3 | Pending |
 | PROF-06 | Phase 3 | Pending |
-| SWIPE-01 | Phase 3 | Pending |
-| SWIPE-02 | Phase 3 | Pending |
-| SWIPE-03 | Phase 3 | Pending |
-| SWIPE-04 | Phase 3 | Pending |
-| SWIPE-05 | Phase 3 | Pending |
+| SWIPE-01 | Phase 3 | Complete |
+| SWIPE-02 | Phase 3 | Complete |
+| SWIPE-03 | Phase 3 | Complete |
+| SWIPE-04 | Phase 3 | Complete |
+| SWIPE-05 | Phase 3 | Complete |
 | SWIPE-06 | Phase 3 | Complete |
-| SWIPE-07 | Phase 3 | Pending |
+| SWIPE-07 | Phase 3 | Complete |
 | JOBS-01 | Phase 3 | Pending |
 | JOBS-02 | Phase 3 | Pending |
 | JOBS-03 | Phase 3 | Pending |
