@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-feature-polish-02-PLAN.md
-last_updated: "2026-03-25T01:37:03.199Z"
+stopped_at: Completed 03-feature-polish-04-PLAN.md
+last_updated: "2026-03-25T01:37:10.398Z"
 last_activity: 2026-03-11 — Roadmap created; requirements mapped to 4 phases
 progress:
   total_phases: 4
@@ -78,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 03-feature-polish]: Added ErrorBannerView manually to project.pbxproj — project uses explicit PBXFileReference entries, not folder-based automatic discovery
 - [Phase 03-feature-polish]: pendingSwipeIsAccepting = false set BEFORE onSwipe call in ManualAnswersSheet callback to prevent false snap-back on submit path
 - [Phase 03-feature-polish]: ErrorBannerView placed inside cardDeck VStack so it only shows when deck is active, not during loading/empty/noSwipes states
+- [Phase 03-feature-polish]: Used NotificationCenter for Apply tab switch from MyJobsView empty state CTA — view hierarchy prevents direct @Binding propagation through sheet
+- [Phase 03-feature-polish]: moveJob catch sets user-facing error after silent revert so ErrorBannerView in MyJobsView shows stage move failure
 
 ### Pending Todos
 
@@ -91,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T01:36:55.312Z
-Stopped at: Completed 03-feature-polish-02-PLAN.md
+Last session: 2026-03-25T01:37:10.396Z
+Stopped at: Completed 03-feature-polish-04-PLAN.md
 Resume file: None

@@ -49,11 +49,11 @@
 
 ### Applied Jobs
 
-- [ ] **JOBS-01**: User can view all applied jobs in a pipeline/Kanban view
-- [ ] **JOBS-02**: User can move a job between pipeline stages
-- [ ] **JOBS-03**: Applied date is visible on each job card
-- [ ] **JOBS-04**: Stage moves feel instant (optimistic update, not wait-then-refresh)
-- [ ] **JOBS-05**: User can view job detail from the applied jobs list
+- [x] **JOBS-01**: User can view all applied jobs in a pipeline/Kanban view
+- [x] **JOBS-02**: User can move a job between pipeline stages
+- [x] **JOBS-03**: Applied date is visible on each job card
+- [x] **JOBS-04**: Stage moves feel instant (optimistic update, not wait-then-refresh)
+- [x] **JOBS-05**: User can view job detail from the applied jobs list
 
 ### Payments / Subscription
 
@@ -134,11 +134,11 @@
 | SWIPE-05 | Phase 3 | Complete |
 | SWIPE-06 | Phase 3 | Complete |
 | SWIPE-07 | Phase 3 | Complete |
-| JOBS-01 | Phase 3 | Pending |
-| JOBS-02 | Phase 3 | Pending |
-| JOBS-03 | Phase 3 | Pending |
-| JOBS-04 | Phase 3 | Pending |
-| JOBS-05 | Phase 3 | Pending |
+| JOBS-01 | Phase 3 | Complete |
+| JOBS-02 | Phase 3 | Complete |
+| JOBS-03 | Phase 3 | Complete |
+| JOBS-04 | Phase 3 | Complete |
+| JOBS-05 | Phase 3 | Complete |
 | PAY-01 | Phase 3 | Pending |
 | PAY-02 | Phase 3 | Pending |
 | PAY-03 | Phase 3 | Pending |
