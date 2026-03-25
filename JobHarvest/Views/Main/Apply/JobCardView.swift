@@ -40,8 +40,17 @@ struct JobCardView: View {
         .rotationEffect(.degrees(isTopCard ? Double(dragOffset.width / 20) : 0))
         .scaleEffect(isTopCard ? 1.0 : max(0.95 - stackOffset * 0.005, 0.9))
         .gesture(isTopCard ? dragGesture : nil)
-        .sheet(isPresented: $showManualAnswers) {
+        .sheet(isPresented: $showManualAnswers, onDismiss: {
+            // If pendingSwipeIsAccepting is still true, user dismissed without submitting
+            if pendingSwipeIsAccepting {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    dragOffset = .zero
+                }
+                pendingSwipeIsAccepting = false
+            }
+        }) {
             ManualAnswersSheet(fields: job.manualInputFields ?? []) { answers in
+                pendingSwipeIsAccepting = false
                 Task { await onSwipe(true, answers) }
             }
         }
@@ -67,7 +76,7 @@ struct JobCardView: View {
                     Task {
                         if isAccepting && !(job.manualInputFields?.isEmpty ?? true) {
                             pendingSwipeIsAccepting = true
-                            dragOffset = .zero
+                            // DO NOT reset dragOffset — card stays off-screen while sheet is open
                             showManualAnswers = true
                         } else {
                             await onSwipe(isAccepting, [:])
@@ -238,9 +247,9 @@ struct JobCardView: View {
 
                 // Match badges
                 VStack(spacing: 5) {
-                    if job.greatMatch == true {
+                    if job.isGreatFit == true || job.greatMatch == true {
                         matchBadge(
-                            text: "Great Match",
+                            text: job.isGreatFit == true ? "Great Fit" : "Great Match",
                             icon: "star.fill",
                             foreground: .white,
                             background: Color(hex: "#00c97a")
