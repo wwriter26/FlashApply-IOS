@@ -60,7 +60,14 @@ Plans:
   3. A user can view their full profile, edit personal info and job preferences, and upload a resume; all changes save with visible success or failure feedback
   4. A user can tap Upgrade, complete Stripe checkout in Safari, return to the app, and see their plan updated immediately — without a manual refresh
   5. All loading states show a spinner or skeleton, all empty states show friendly messaging with a clear action, and all error messages are human-readable
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Shared UX foundations: error humanization, branded loading, error banner, JobFilters Equatable
+- [ ] 03-02-PLAN.md — Swipe card polish: animation bug fix, isGreatFit badge, context-aware empty deck, swipe limit UI
+- [ ] 03-03-PLAN.md — Payments and Profile: plan bridge, Stripe return detection, profile save feedback
+- [ ] 03-04-PLAN.md — Applied Jobs pipeline: empty state fix, stage move buttons, active/all toggle
+- [ ] 03-05-PLAN.md — Final UX sweep and human verification of all tabs on simulator
 
 ### Phase 4: Hardening
 **Goal**: The app has crash visibility, stable memory behavior, and no architectural anti-patterns that cause duplicate events or stale state
@@ -82,5 +89,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Connectivity | 1/1 | Complete   | 2026-03-12 |
 | 2. Auth and Profile Foundation | 2/3 | In Progress|  |
-| 3. Feature Polish | 0/TBD | Not started | - |
+| 3. Feature Polish | 0/5 | Not started | - |
 | 4. Hardening | 0/TBD | Not started | - |
