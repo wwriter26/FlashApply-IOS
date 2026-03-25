@@ -2,9 +2,17 @@ import SwiftUI
 
 struct PremiumView: View {
     @StateObject private var subscriptionVM = SubscriptionViewModel()
+    @EnvironmentObject var profileVM: ProfileViewModel
     @State private var billingPeriod: BillingPeriod = .monthly
     @State private var showWebCheckout = false
     @State private var checkoutURL: URL?
+
+    // Stripe return detection
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var awaitingPaymentReturn = false
+    @State private var isVerifyingPayment = false
+    @State private var paymentResultMessage: String?
+    @State private var paymentResultIsSuccess = false
 
     enum BillingPeriod { case monthly, seasonal, lifetime }
 
@@ -23,6 +31,21 @@ struct PremiumView: View {
                             .foregroundColor(.flashNavy)
                         Text("Apply to more jobs, faster")
                             .foregroundColor(.secondary)
+                    }
+
+                    // Payment result banner
+                    if let resultMessage = paymentResultMessage {
+                        HStack(spacing: 12) {
+                            Image(systemName: paymentResultIsSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                .foregroundColor(paymentResultIsSuccess ? Color(hex: "#00c97a") : Color(hex: "#e74c3c"))
+                            Text(resultMessage)
+                                .font(.system(size: 14))
+                                .foregroundColor(.flashDark)
+                        }
+                        .padding(14)
+                        .background(paymentResultIsSuccess ? Color(hex: "#00c97a").opacity(0.10) : Color(hex: "#e74c3c").opacity(0.10))
+                        .cornerRadius(10)
+                        .padding(.horizontal, 16)
                     }
 
                     // Billing Toggle
@@ -80,6 +103,51 @@ struct PremiumView: View {
             } message: {
                 Text(subscriptionVM.error ?? "")
             }
+            .task {
+                // Bridge plan from profileVM to subscriptionVM so the correct plan is shown
+                if let planString = profileVM.profile.plan,
+                   let plan = SubscriptionPlan(rawValue: planString) {
+                    subscriptionVM.currentPlan = plan
+                }
+            }
+            .onChange(of: scenePhase) { newPhase in
+                guard newPhase == .active, awaitingPaymentReturn else { return }
+                awaitingPaymentReturn = false
+                isVerifyingPayment = true
+                Task {
+                    await profileVM.fetchProfile()
+                    if let planString = profileVM.profile.plan,
+                       let plan = SubscriptionPlan(rawValue: planString) {
+                        subscriptionVM.currentPlan = plan
+                        if plan != .free {
+                            paymentResultMessage = "Plan updated! You're now on \(plan.displayName)."
+                            paymentResultIsSuccess = true
+                        } else {
+                            paymentResultMessage = "Verification failed \u{2014} please contact support."
+                            paymentResultIsSuccess = false
+                        }
+                    }
+                    isVerifyingPayment = false
+                    // Auto-dismiss success message after 3 seconds
+                    if paymentResultIsSuccess {
+                        try? await Task.sleep(nanoseconds: 3_000_000_000)
+                        paymentResultMessage = nil
+                    }
+                }
+            }
+            .overlay {
+                if isVerifyingPayment {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                        LoadingView(message: "Verifying payment...")
+                            .background(Color.flashWhite)
+                            .cornerRadius(16)
+                            .shadow(radius: 10)
+                            .padding(40)
+                    }
+                }
+            }
         }
     }
 
@@ -88,6 +156,7 @@ struct PremiumView: View {
             await subscriptionVM.createCheckoutSession(plan: plan)
             if let url = subscriptionVM.checkoutURL {
                 checkoutURL = url
+                awaitingPaymentReturn = true
                 showWebCheckout = true
             }
         }

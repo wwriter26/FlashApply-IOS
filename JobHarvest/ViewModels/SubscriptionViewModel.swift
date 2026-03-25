@@ -33,7 +33,7 @@ final class SubscriptionViewModel: ObservableObject {
             }
         } catch {
             AppLogger.subscription.error("createCheckoutSession: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoading = false
     }
@@ -54,7 +54,7 @@ final class SubscriptionViewModel: ObservableObject {
             }
         } catch {
             AppLogger.subscription.error("checkSessionStatus: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
     }
 
@@ -70,7 +70,7 @@ final class SubscriptionViewModel: ObservableObject {
             return true
         } catch {
             AppLogger.subscription.error("cancelSubscription: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
             isLoading = false
             return false
         }

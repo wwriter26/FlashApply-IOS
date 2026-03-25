@@ -41,6 +41,7 @@ struct MainTabView: View {
                 .tag(3)
 
             MoreView()
+                .environmentObject(profileVM)
                 .tabItem {
                     Label("More", systemImage: "ellipsis.circle\(selectedTab == 4 ? ".fill" : "")")
                 }
@@ -49,6 +50,9 @@ struct MainTabView: View {
         .accentColor(.flashTeal)
         .onAppear {
             configureTabBarAppearance()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .switchToApplyTab)) { _ in
+            selectedTab = 0
         }
     }
 
