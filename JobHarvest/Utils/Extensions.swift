@@ -79,6 +79,48 @@ extension View {
     }
 }
 
+// MARK: - Error Humanization
+extension Error {
+    var humanReadableDescription: String {
+        let raw = localizedDescription
+        // Network errors
+        if raw.contains("URLError") || raw.contains("-1009") || raw.contains("NSURLErrorDomain") {
+            return "No internet connection. Check your connection and retry."
+        }
+        if raw.contains("-1001") {
+            return "The request timed out. Please try again."
+        }
+        // HTTP status codes
+        if raw.contains("403") || raw.contains("Forbidden") {
+            return "You've reached your daily limit. Upgrade to continue."
+        }
+        if raw.contains("401") || raw.contains("Unauthorized") {
+            return "Your session has expired. Please sign in again."
+        }
+        if raw.contains("404") || raw.contains("Not Found") {
+            return "This content is no longer available."
+        }
+        if raw.contains("500") || raw.contains("Internal Server Error") {
+            return "Something went wrong on our end. Please try again."
+        }
+        // AWS/Cognito errors
+        if raw.contains("UserNotConfirmedException") {
+            return "Please verify your email before signing in."
+        }
+        if raw.contains("NotAuthorizedException") {
+            return "Incorrect email or password. Please try again."
+        }
+        if raw.contains("UsernameExistsException") {
+            return "An account with this email already exists."
+        }
+        if raw.contains("AWSCognito") || raw.contains("Cognito") {
+            return "Authentication error. Please sign out and sign in again."
+        }
+        // Default
+        return "An unexpected error occurred. Please try again."
+    }
+}
+
 // MARK: - Salary Formatting
 extension PayEstimate {
     var formattedString: String {
