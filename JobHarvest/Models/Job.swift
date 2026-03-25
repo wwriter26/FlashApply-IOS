@@ -81,7 +81,7 @@ struct ManualInputField: Codable, Identifiable {
 }
 
 // MARK: - Job Filters
-struct JobFilters: Codable {
+struct JobFilters: Codable, Equatable {
     var jobIndustry: String?
     var locationState: String?
     var jobType: [String]?

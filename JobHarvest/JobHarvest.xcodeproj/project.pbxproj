@@ -24,6 +24,7 @@
 		C2DF48A12F4BC19700CE891B /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48552F4BC19700CE891B /* AuthService.swift */; };
 		C2DF48A22F4BC19700CE891B /* ReferralViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48622F4BC19700CE891B /* ReferralViewModel.swift */; };
 		C2DF48A32F4BC19700CE891B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48922F4BC19700CE891B /* ErrorView.swift */; };
+		C2DF48E02F4BC19700CE891B /* ErrorBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48DF2F4BC19700CE891B /* ErrorBannerView.swift */; };
 		C2DF48A42F4BC19700CE891B /* EducationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF487E2F4BC19700CE891B /* EducationSection.swift */; };
 		C2DF48A52F4BC19700CE891B /* PipelineColumnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48772F4BC19700CE891B /* PipelineColumnView.swift */; };
 		C2DF48A62F4BC19700CE891B /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48612F4BC19700CE891B /* ProfileViewModel.swift */; };
@@ -146,6 +147,7 @@
 		C2DF48902F4BC19700CE891B /* CompanyLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyLogoView.swift; sourceTree = "<group>"; };
 		C2DF48912F4BC19700CE891B /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		C2DF48922F4BC19700CE891B /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		C2DF48DF2F4BC19700CE891B /* ErrorBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorBannerView.swift; sourceTree = "<group>"; };
 		C2DF48932F4BC19700CE891B /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		C2DF48D02F4BC1C900CE891B /* amplifyconfiguration.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = amplifyconfiguration.json; sourceTree = "<group>"; };
 		C2DF48D22F4BC1EA00CE891B /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
@@ -422,6 +424,7 @@
 			children = (
 				C2DF48902F4BC19700CE891B /* CompanyLogoView.swift */,
 				C2DF48912F4BC19700CE891B /* CustomButton.swift */,
+				C2DF48DF2F4BC19700CE891B /* ErrorBannerView.swift */,
 				C2DF48922F4BC19700CE891B /* ErrorView.swift */,
 				C2DF48932F4BC19700CE891B /* LoadingView.swift */,
 			);
@@ -606,6 +609,7 @@
 				C2DF48A12F4BC19700CE891B /* AuthService.swift in Sources */,
 				C2DF48A22F4BC19700CE891B /* ReferralViewModel.swift in Sources */,
 				C2DF48A32F4BC19700CE891B /* ErrorView.swift in Sources */,
+				C2DF48E02F4BC19700CE891B /* ErrorBannerView.swift in Sources */,
 				C2DF48A42F4BC19700CE891B /* EducationSection.swift in Sources */,
 				C2DF48A52F4BC19700CE891B /* PipelineColumnView.swift in Sources */,
 				C2DF48A62F4BC19700CE891B /* ProfileViewModel.swift in Sources */,
