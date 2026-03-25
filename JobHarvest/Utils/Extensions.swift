@@ -121,6 +121,11 @@ extension Error {
     }
 }
 
+// MARK: - Notification Names
+extension Notification.Name {
+    static let switchToApplyTab = Notification.Name("switchToApplyTab")
+}
+
 // MARK: - Salary Formatting
 extension PayEstimate {
     var formattedString: String {
