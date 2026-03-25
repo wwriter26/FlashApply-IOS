@@ -55,26 +55,37 @@ Exceptions:
 
 ## Typography
 
-All text uses `.system(size:weight:design:)`. No custom fonts. Four roles are in active use across this phase.
+All text uses `.system(size:weight:design:)`. No custom fonts. Four roles are actively introduced or modified in Phase 3.
 
 | Role | Size | Weight | Line Height / Spacing |
 |------|------|--------|-----------------------|
 | Body | 14pt | regular (400) | lineSpacing: 4pt (approx 1.3 ratio) |
-| Label | 15pt | regular (400) | lineSpacing: 3pt |
+| CTA Button Label | 16pt | semibold (600) | default (single-line, no explicit lineSpacing) |
 | Heading | 22pt | bold (700) | default (approx 1.2) |
 | Display | 30pt | bold (700) | default (approx 1.2) |
 
-Additional specific uses (pre-existing — do not change):
-- Section label caps: 10pt, semibold (600), kerning 0.8 (chip row labels: "SKILLS", "BENEFITS", etc.)
-- Card job title: 16pt, bold (700)
-- Company name on card: 13pt, medium (500)
-- Location / job type chip text: 10–11pt, regular to semibold
-- Tab bar text: 13pt, regular/semibold (active tab)
-- Swipe overlay labels ("APPLY", "SKIP"): 32pt, black (900), rounded design — existing, do not change
-- CTA button label: 16pt, semibold (600)
-- Swipe limit badge in toolbar: 12pt, semibold (600)
+**Weights in contract: regular (400) and bold (700).** Semibold (600) is used exclusively for CTA button labels and is included as the exception for that single role.
+
+> Note: Label (15pt) from the earlier Phase 2 contract has been merged into Body (14pt) — the 1pt difference was not perceptible and was eliminated to keep the scale clean. All views previously using 15pt regular text should use 14pt regular.
 
 **Source:** Codebase audit of `JobCardView.swift`, `ApplyView.swift`, `ErrorView.swift`
+
+---
+
+### Pre-existing Type Values (Phase 2 Heritage — Do Not Modify in Phase 3)
+
+These sizes and weights exist in Phase 2 components. They are documented here for reference only. Phase 3 must not introduce new uses of these values, and must not change existing Phase 2 components that use them.
+
+| Element | Size | Weight | Notes |
+|---------|------|--------|-------|
+| Section label caps ("SKILLS", "BENEFITS") | 10pt | semibold (600) | kerning 0.8 |
+| Location / job type chip text | 10–11pt | regular to semibold | Phase 2 chip component |
+| Company name on card | 13pt | medium (500) | Phase 2 `JobCardView` |
+| Tab bar text (inactive) | 13pt | regular (400) | System tab bar |
+| Tab bar text (active tab) | 13pt | semibold (600) | System tab bar |
+| Swipe limit badge | 12pt | semibold (600) | Phase 2 toolbar badge |
+| Card job title | 16pt | bold (700) | Phase 2 `JobCardView` |
+| Swipe overlay labels ("APPLY", "SKIP") | 32pt | black (900) | `.rounded` design — do not touch |
 
 ---
 
@@ -115,6 +126,21 @@ All colors are defined in `JobHarvest/Utils/Constants.swift` as `Color` extensio
 - Destructive/warning CTAs (Upgrade prompt when at limit)
 
 **Source:** Codebase audit of `Constants.swift`, `JobCardView.swift`, `ApplyView.swift`
+
+---
+
+## Screen Focal Points
+
+One primary visual anchor per screen that the executor must treat as the dominant hierarchy element.
+
+| Screen | Primary Visual Anchor |
+|--------|-----------------------|
+| Apply tab | Top card in the Z-stack deck — all other elements (toolbar badge, action buttons) are subordinate to it. Card occupies the majority of vertical space and draws the first gaze. |
+| Applied Jobs tab | The active pipeline column list — the stage label and job count are the first readable elements; row cards below are secondary. |
+| Profile tab | The user's name and resume section at the top — these establish identity and readiness; all editable fields are secondary. |
+| Payments tab | The plan comparison card grid — the current plan highlight (teal border or badge) is the focal element; upgrade CTAs are immediately below it. |
+
+**Source:** Claude's discretion; informed by feature priority in CONTEXT.md and REQUIREMENTS.md.
 
 ---
 
