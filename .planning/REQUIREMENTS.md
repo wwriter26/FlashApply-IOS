@@ -67,7 +67,7 @@
 
 - [x] **UX-01**: All error messages shown to users are human-readable (not raw AWS/Cognito SDK strings)
 - [x] **UX-02**: All loading states have a spinner or skeleton UI (no blank screens during fetches)
-- [ ] **UX-03**: All empty states have friendly messaging and a clear action (no blank screens)
+- [x] **UX-03**: All empty states have friendly messaging and a clear action (no blank screens)
 - [x] **UX-04**: Network failure on any screen shows a retry option
 
 ## v2 Requirements
@@ -146,7 +146,7 @@
 | PAY-05 | Phase 3 | Complete |
 | UX-01 | Phase 3 | Complete |
 | UX-02 | Phase 3 | Complete |
-| UX-03 | Phase 3 | Pending |
+| UX-03 | Phase 3 | Complete |
 | UX-04 | Phase 3 | Complete |
 
 **Coverage:**
