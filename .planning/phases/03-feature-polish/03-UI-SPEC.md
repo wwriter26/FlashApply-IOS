@@ -60,11 +60,11 @@ All text uses `.system(size:weight:design:)`. No custom fonts. Four roles are ac
 | Role | Size | Weight | Line Height / Spacing |
 |------|------|--------|-----------------------|
 | Body | 14pt | regular (400) | lineSpacing: 4pt (approx 1.3 ratio) |
-| CTA Button Label | 16pt | semibold (600) | default (single-line, no explicit lineSpacing) |
+| CTA Button Label | 16pt | bold (700) | default (single-line, no explicit lineSpacing) |
 | Heading | 22pt | bold (700) | default (approx 1.2) |
 | Display | 30pt | bold (700) | default (approx 1.2) |
 
-**Weights in contract: regular (400) and bold (700).** Semibold (600) is used exclusively for CTA button labels and is included as the exception for that single role.
+**Weights in contract: regular (400) and bold (700).** No exceptions — all Phase 3 text uses one of these two weights.
 
 > Note: Label (15pt) from the earlier Phase 2 contract has been merged into Body (14pt) — the 1pt difference was not perceptible and was eliminated to keep the scale clean. All views previously using 15pt regular text should use 14pt regular.
 
@@ -233,7 +233,7 @@ Existing components Phase 3 will polish or extend. Executor must use these, not 
 |---------|------|
 | Empty deck (no filters) — heading | "All caught up!" |
 | Empty deck (no filters) — body | "You've seen all available matches. Check back later for new jobs." |
-| Empty deck (no filters) — CTA | "Refresh" |
+| Empty deck (no filters) — CTA | "Refresh Jobs" |
 | Empty deck (filters active) — heading | "No matches for these filters" |
 | Empty deck (filters active) — body | "Try adjusting your filters to see more opportunities." |
 | Empty deck (filters active) — CTA | "Adjust Filters" |
