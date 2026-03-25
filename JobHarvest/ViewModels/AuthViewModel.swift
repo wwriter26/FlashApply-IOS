@@ -57,7 +57,7 @@ final class AuthViewModel: ObservableObject {
             self.error = authError.errorDescription
         } catch {
             AppLogger.auth.error("signIn failed: \(error)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoading = false
     }
@@ -91,7 +91,7 @@ final class AuthViewModel: ObservableObject {
             return false
         } catch {
             AppLogger.auth.error("signUp: Cognito signup failed — \(error)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
             isLoading = false
             return false
         }
@@ -113,7 +113,7 @@ final class AuthViewModel: ObservableObject {
             return false
         } catch {
             AppLogger.auth.error("confirmSignUp failed: \(error)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
             isLoading = false
             return false
         }
@@ -148,7 +148,7 @@ final class AuthViewModel: ObservableObject {
             isLoading = false
         } catch {
             AppLogger.auth.error("resendSignUpCode failed: \(error)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
             isLoading = false
         }
     }
@@ -168,7 +168,7 @@ final class AuthViewModel: ObservableObject {
             return false
         } catch {
             AppLogger.auth.error("forgotPassword failed: \(error)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
             isLoading = false
             return false
         }
@@ -188,7 +188,7 @@ final class AuthViewModel: ObservableObject {
             return false
         } catch {
             AppLogger.auth.error("confirmForgotPassword failed: \(error)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
             isLoading = false
             return false
         }
@@ -206,7 +206,7 @@ final class AuthViewModel: ObservableObject {
             self.error = authError.errorDescription
         } catch {
             AppLogger.auth.error("signInWithApple failed: \(error)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoading = false
     }
@@ -222,7 +222,7 @@ final class AuthViewModel: ObservableObject {
             self.error = authError.errorDescription
         } catch {
             AppLogger.auth.error("signInWithGoogle failed: \(error)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoading = false
     }

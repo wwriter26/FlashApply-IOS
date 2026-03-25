@@ -26,7 +26,7 @@ final class ReferralViewModel: ObservableObject {
             AppLogger.referral.info("fetchReferralData: success — code = \(response?.referralCode ?? "nil")")
         } catch {
             AppLogger.referral.error("fetchReferralData: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoading = false
     }
@@ -43,7 +43,7 @@ final class ReferralViewModel: ObservableObject {
             AppLogger.referral.info("requestPayout: success via \(method)")
         } catch {
             AppLogger.referral.error("requestPayout: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoading = false
     }

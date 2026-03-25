@@ -697,7 +697,7 @@ struct PreferencesQuizView: View {
                 await authVM.markOnboardingComplete()
                 PreferencesQuizView.clearSavedQuizState()
             } catch {
-                self.error = error.localizedDescription
+                self.error = error.humanReadableDescription
             }
             isSubmitting = false
         }

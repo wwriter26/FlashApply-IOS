@@ -53,7 +53,7 @@ final class MailboxViewModel: ObservableObject {
             AppLogger.network.info("fetchEmails: loaded \(self.emails.count) emails, hasMore=\(self.hasMore)")
         } catch {
             AppLogger.network.error("fetchEmails: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoading = false
     }
@@ -78,7 +78,7 @@ final class MailboxViewModel: ObservableObject {
             AppLogger.network.info("loadMore: appended \(newCount) emails, hasMore=\(self.hasMore)")
         } catch {
             AppLogger.network.error("loadMore: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isFetchingMore = false
     }

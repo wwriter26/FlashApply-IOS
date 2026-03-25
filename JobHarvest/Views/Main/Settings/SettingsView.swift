@@ -145,7 +145,7 @@ struct ChangeEmailView: View {
                                     dismiss()
                                 }
                             } catch {
-                                self.error = error.localizedDescription
+                                self.error = error.humanReadableDescription
                             }
                             isSaving = false
                         }
@@ -190,7 +190,7 @@ struct ChangePasswordView: View {
                                 try await AuthService.shared.changePassword(old: oldPassword, new: newPassword)
                                 success = true
                             } catch {
-                                self.error = error.localizedDescription
+                                self.error = error.humanReadableDescription
                             }
                             isSaving = false
                         }

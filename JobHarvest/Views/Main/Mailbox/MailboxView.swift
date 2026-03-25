@@ -26,6 +26,13 @@ struct MailboxView: View {
                 } else {
                     emailList
                 }
+
+                if let errorMessage = mailboxVM.error {
+                    ErrorBannerView(message: errorMessage) {
+                        mailboxVM.error = nil
+                        Task { await mailboxVM.fetchEmails() }
+                    }
+                }
             }
             .navigationTitle("Mailbox")
             .navigationBarTitleDisplayMode(.inline)
