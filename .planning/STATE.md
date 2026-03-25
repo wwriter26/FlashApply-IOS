@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-feature-polish-04-PLAN.md
-last_updated: "2026-03-25T01:37:10.398Z"
+stopped_at: Completed 03-feature-polish-03-PLAN.md
+last_updated: "2026-03-25T01:38:23.839Z"
 last_activity: 2026-03-11 — Roadmap created; requirements mapped to 4 phases
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 100
 ---
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100%
 | Phase 03-feature-polish P01 | 15m | 2 tasks | 5 files |
 | Phase 03-feature-polish P02 | 8m | 2 tasks | 3 files |
 | Phase 03-feature-polish P04 | 18m | 2 tasks | 5 files |
+| Phase 03-feature-polish P03 | 7m | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 03-feature-polish]: ErrorBannerView placed inside cardDeck VStack so it only shows when deck is active, not during loading/empty/noSwipes states
 - [Phase 03-feature-polish]: Used NotificationCenter for Apply tab switch from MyJobsView empty state CTA — view hierarchy prevents direct @Binding propagation through sheet
 - [Phase 03-feature-polish]: moveJob catch sets user-facing error after silent revert so ErrorBannerView in MyJobsView shows stage move failure
+- [Phase 03-feature-polish]: Used scenePhase .active + awaitingPaymentReturn flag for Stripe return detection instead of deep-link URL scheme
+- [Phase 03-feature-polish]: Notification.Name(.profileDidSave) posted from ProfileViewModel.updateProfile to trigger save success banner in ProfileView
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T01:37:10.396Z
-Stopped at: Completed 03-feature-polish-04-PLAN.md
+Last session: 2026-03-25T01:38:23.837Z
+Stopped at: Completed 03-feature-polish-03-PLAN.md
 Resume file: None

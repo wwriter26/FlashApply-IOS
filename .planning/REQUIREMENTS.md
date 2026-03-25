@@ -30,12 +30,12 @@
 
 ### Profile
 
-- [ ] **PROF-01**: User can view all their profile information in the Profile tab
-- [ ] **PROF-02**: User can edit personal info (name, phone, LinkedIn URL)
-- [ ] **PROF-03**: User can update job preferences (job type, location, salary range, work authorization)
-- [ ] **PROF-04**: User can upload or replace their resume
-- [ ] **PROF-05**: Profile uses the same shared `ProfileViewModel` instance as onboarding (no redundant fetches)
-- [ ] **PROF-06**: Profile changes are saved to backend with success/failure feedback to user
+- [x] **PROF-01**: User can view all their profile information in the Profile tab
+- [x] **PROF-02**: User can edit personal info (name, phone, LinkedIn URL)
+- [x] **PROF-03**: User can update job preferences (job type, location, salary range, work authorization)
+- [x] **PROF-04**: User can upload or replace their resume
+- [x] **PROF-05**: Profile uses the same shared `ProfileViewModel` instance as onboarding (no redundant fetches)
+- [x] **PROF-06**: Profile changes are saved to backend with success/failure feedback to user
 
 ### Swipe / Job Cards
 
@@ -57,11 +57,11 @@
 
 ### Payments / Subscription
 
-- [ ] **PAY-01**: User can navigate to the subscription/upgrade screen
-- [ ] **PAY-02**: Current subscription plan is correctly displayed (not always "Free")
-- [ ] **PAY-03**: Stripe checkout session opens successfully in Safari
-- [ ] **PAY-04**: App detects successful payment and updates subscription status after returning from Stripe
-- [ ] **PAY-05**: User sees their updated plan reflected immediately after successful payment
+- [x] **PAY-01**: User can navigate to the subscription/upgrade screen
+- [x] **PAY-02**: Current subscription plan is correctly displayed (not always "Free")
+- [x] **PAY-03**: Stripe checkout session opens successfully in Safari
+- [x] **PAY-04**: App detects successful payment and updates subscription status after returning from Stripe
+- [x] **PAY-05**: User sees their updated plan reflected immediately after successful payment
 
 ### Error Handling & Polish
 
@@ -121,12 +121,12 @@
 | ONBD-03 | Phase 2 | Complete |
 | ONBD-04 | Phase 2 | Complete |
 | ONBD-05 | Phase 2 | Complete |
-| PROF-01 | Phase 3 | Pending |
-| PROF-02 | Phase 3 | Pending |
-| PROF-03 | Phase 3 | Pending |
-| PROF-04 | Phase 3 | Pending |
-| PROF-05 | Phase 3 | Pending |
-| PROF-06 | Phase 3 | Pending |
+| PROF-01 | Phase 3 | Complete |
+| PROF-02 | Phase 3 | Complete |
+| PROF-03 | Phase 3 | Complete |
+| PROF-04 | Phase 3 | Complete |
+| PROF-05 | Phase 3 | Complete |
+| PROF-06 | Phase 3 | Complete |
 | SWIPE-01 | Phase 3 | Complete |
 | SWIPE-02 | Phase 3 | Complete |
 | SWIPE-03 | Phase 3 | Complete |
@@ -139,11 +139,11 @@
 | JOBS-03 | Phase 3 | Complete |
 | JOBS-04 | Phase 3 | Complete |
 | JOBS-05 | Phase 3 | Complete |
-| PAY-01 | Phase 3 | Pending |
-| PAY-02 | Phase 3 | Pending |
-| PAY-03 | Phase 3 | Pending |
-| PAY-04 | Phase 3 | Pending |
-| PAY-05 | Phase 3 | Pending |
+| PAY-01 | Phase 3 | Complete |
+| PAY-02 | Phase 3 | Complete |
+| PAY-03 | Phase 3 | Complete |
+| PAY-04 | Phase 3 | Complete |
+| PAY-05 | Phase 3 | Complete |
 | UX-01 | Phase 3 | Complete |
 | UX-02 | Phase 3 | Complete |
 | UX-03 | Phase 3 | Pending |
