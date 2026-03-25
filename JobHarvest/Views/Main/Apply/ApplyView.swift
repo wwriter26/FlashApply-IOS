@@ -20,6 +20,10 @@ struct ApplyView: View {
         return !name.isEmpty
     }
 
+    private var hasActiveFilters: Bool {
+        currentFilters != JobFilters()
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -39,7 +43,7 @@ struct ApplyView: View {
                 } else if jobCardsVM.noSwipesLeft {
                     noSwipesView
                 } else if jobCardsVM.jobs.isEmpty && jobCardsVM.isLoaded {
-                    emptyView
+                    emptyDeckView
                 } else {
                     cardDeck
                 }
@@ -148,6 +152,13 @@ struct ApplyView: View {
     // MARK: - Card Deck
     private var cardDeck: some View {
         VStack {
+            if let errorMessage = jobCardsVM.error {
+                ErrorBannerView(message: errorMessage) {
+                    jobCardsVM.error = nil
+                    Task { await jobCardsVM.fetchJobs(filters: currentFilters) }
+                }
+            }
+
             ZStack {
                 ForEach(jobCardsVM.jobs.prefix(3).reversed()) { job in
                     if let topIndex = jobCardsVM.jobs.firstIndex(where: { $0.jobUrl == job.jobUrl }) {
@@ -176,59 +187,61 @@ struct ApplyView: View {
     }
 
     // MARK: - Empty / No Swipes Views
-    private var emptyView: some View {
+    private var emptyDeckView: some View {
         VStack(spacing: 24) {
-            ZStack {
-                Circle()
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.flashTextSecondary.opacity(0.4), Color.flashTextSecondary.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 3
+            Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle" : "checkmark.circle")
+                .font(.system(size: 48))
+                .foregroundColor(.flashTeal)
+
+            Text(hasActiveFilters ? "No matches for these filters" : "All caught up!")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(.flashNavy)
+
+            Text(hasActiveFilters
+                 ? "Try adjusting your filters to see more opportunities."
+                 : "You've seen all available matches. Check back later for new jobs.")
+                .font(.system(size: 14))
+                .foregroundColor(.flashDark)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+
+            if hasActiveFilters {
+                Button("Adjust Filters") {
+                    showFilters = true
+                }
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(
+                        colors: [.flashTeal, .flashTealDark],
+                        startPoint: .leading,
+                        endPoint: .trailing
                     )
-                    .frame(width: 100, height: 100)
-
-                Circle()
-                    .fill(Color.flashTextSecondary.opacity(0.08))
-                    .frame(width: 90, height: 90)
-
-                Image(systemName: "rectangle.stack.badge.minus")
-                    .font(.system(size: 40))
-                    .foregroundColor(.flashTextSecondary)
-            }
-
-            VStack(spacing: 8) {
-                Text("No more jobs right now")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.flashNavy)
-                Text("Check back later or adjust your filters to see more opportunities.")
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 15))
-                    .foregroundColor(.flashTextSecondary)
-                    .lineSpacing(3)
-                    .padding(.horizontal, 32)
-            }
-
-            Button("Refresh") {
-                Task { await jobCardsVM.fetchJobs(filters: currentFilters) }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 15)
-            .background(
-                LinearGradient(
-                    colors: [Color.flashTeal, Color.flashTealDark],
-                    startPoint: .leading,
-                    endPoint: .trailing
                 )
-            )
-            .foregroundColor(.white)
-            .font(.system(size: 16, weight: .semibold))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .shadow(color: Color.flashTeal.opacity(0.35), radius: 10, x: 0, y: 5)
-            .padding(.horizontal, 40)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .shadow(color: Color.flashTeal.opacity(0.35), radius: 10, x: 0, y: 5)
+            } else {
+                Button("Refresh Jobs") {
+                    Task { await jobCardsVM.fetchJobs(filters: currentFilters) }
+                }
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(
+                        colors: [.flashTeal, .flashTealDark],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .shadow(color: Color.flashTeal.opacity(0.35), radius: 10, x: 0, y: 5)
+            }
         }
+        .padding(.horizontal, 32)
     }
 
     private var noSwipesView: some View {

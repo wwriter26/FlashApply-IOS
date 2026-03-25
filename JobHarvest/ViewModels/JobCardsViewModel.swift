@@ -55,7 +55,7 @@ final class JobCardsViewModel: ObservableObject {
             isLoaded = true
         } catch {
             AppLogger.jobs.error("fetchJobs: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
 
         isLoading = false
