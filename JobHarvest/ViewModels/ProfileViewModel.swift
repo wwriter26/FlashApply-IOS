@@ -35,7 +35,7 @@ final class ProfileViewModel: ObservableObject {
             }
         } catch {
             AppLogger.profile.error("fetchProfile: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoaded = true
         isLoading = false
@@ -56,6 +56,7 @@ final class ProfileViewModel: ObservableObject {
                 body: updatedProfile
             )
             AppLogger.profile.info("updateProfile: success")
+            NotificationCenter.default.post(name: .profileDidSave, object: nil)
         } catch {
             profile = previous  // revert
             AppLogger.profile.error("updateProfile: failed — \(error.localizedDescription) — reverted to previous state")
@@ -73,7 +74,7 @@ final class ProfileViewModel: ObservableObject {
             try await updateProfile(updated)
         } catch {
             AppLogger.profile.error("updateField: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
     }
 
@@ -89,7 +90,7 @@ final class ProfileViewModel: ObservableObject {
             AppLogger.files.info("uploadResume: S3 upload complete, local state updated")
         } catch {
             AppLogger.files.error("uploadResume: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isSaving = false
     }

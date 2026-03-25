@@ -124,6 +124,7 @@ extension Error {
 // MARK: - Notification Names
 extension Notification.Name {
     static let switchToApplyTab = Notification.Name("switchToApplyTab")
+    static let profileDidSave = Notification.Name("profileDidSave")
 }
 
 // MARK: - Salary Formatting
