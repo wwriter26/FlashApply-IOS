@@ -46,7 +46,7 @@ final class AppliedJobsViewModel: ObservableObject {
             AppLogger.jobs.info("fetchAppliedJobs: loaded \(total) active jobs across pipeline")
         } catch {
             AppLogger.jobs.error("fetchAppliedJobs: failed — \(error.localizedDescription)")
-            self.error = error.localizedDescription
+            self.error = error.humanReadableDescription
         }
         isLoading = false
     }
@@ -108,6 +108,7 @@ final class AppliedJobsViewModel: ObservableObject {
             AppLogger.jobs.error("Move job failed: \(error)")
             // Revert on failure
             await silentRefresh()
+            self.error = "Could not update stage. Tap to retry."
         }
     }
 

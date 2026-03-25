@@ -4,14 +4,16 @@ import SafariServices
 
 struct JobDetailSheet: View {
     let job: AppliedJob
+    var onStageMoved: ((String) -> Void)?
     @EnvironmentObject var appliedJobsVM: AppliedJobsViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var selectedStage: PipelineStage
     @State private var showSafari = false
     @State private var selectedTab = 0
 
-    init(job: AppliedJob) {
+    init(job: AppliedJob, onStageMoved: ((String) -> Void)? = nil) {
         self.job = job
+        self.onStageMoved = onStageMoved
         _selectedStage = State(initialValue: job.stage ?? .applied)
     }
 
@@ -142,8 +144,16 @@ struct JobDetailSheet: View {
                 HStack(spacing: 8) {
                     ForEach(PipelineStage.allCases, id: \.self) { stage in
                         Button(action: {
+                            let previous = selectedStage
                             selectedStage = stage
-                            Task { await appliedJobsVM.moveJob(job, to: stage) }
+                            Task {
+                                await appliedJobsVM.moveJob(job, to: stage)
+                                if appliedJobsVM.error == nil {
+                                    onStageMoved?("Moved to \(stage.displayName)")
+                                } else {
+                                    selectedStage = previous
+                                }
+                            }
                         }) {
                             HStack(spacing: 5) {
                                 Circle()
