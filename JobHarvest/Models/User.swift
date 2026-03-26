@@ -102,6 +102,10 @@ struct UserProfile: Codable {
     var licenses: [String]?
     var references: [AnyCodable]?
 
+    // Swipe counts — decode only, NEVER send back.
+    var swipesLeftToday: Int?
+    var enduringSwipes: Int?
+
     // Backend-managed job tracking fields — decode only, NEVER send back.
     var acceptedJobs: AnyCodable?
     var appliedJobs: AnyCodable?
@@ -144,6 +148,7 @@ struct UserProfile: Codable {
         case plan = "membershipPlan"
         case stripeCustomerId, membershipPlanActive
         case toolsWorkedWith, licenses, references
+        case swipesLeftToday, enduringSwipes
         case acceptedJobs, appliedJobs
     }
 

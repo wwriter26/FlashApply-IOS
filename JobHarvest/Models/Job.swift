@@ -95,8 +95,18 @@ struct JobFilters: Codable, Equatable {
 struct FetchJobsResponse: Codable {
     let newJobs: [Job]?
     let jobs: [Job]?     // fallback key some endpoints use
+    let swipesLeftToday: Int?
+    let enduringSwipes: Int?
 
     var resolvedJobs: [Job] { newJobs ?? jobs ?? [] }
+}
+
+// MARK: - Jobs API top-level response (may include swipe counts alongside data)
+struct JobsAPIResponse: Codable {
+    let message: String?
+    let data: [Job]?
+    let swipesLeftToday: Int?
+    let enduringSwipes: Int?
 }
 
 // MARK: - Handle Swipe Response

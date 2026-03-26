@@ -6,8 +6,19 @@ struct MyJobsView: View {
     @State private var showActiveOnly = true
     @State private var stageMoveMessage: String?
 
+    private var inactiveStages: [PipelineStage] {
+        [.archived, .failed]
+    }
+
     var displayedStages: [PipelineStage] {
-        showActiveOnly ? appliedJobsVM.activeStages : appliedJobsVM.allStages
+        showActiveOnly ? appliedJobsVM.activeStages : inactiveStages
+    }
+
+    /// Sort jobs alphabetically by job title within each stage
+    private func sortedJobs(for stage: PipelineStage) -> [AppliedJob] {
+        appliedJobsVM.jobs(for: stage).sorted {
+            ($0.jobTitle ?? "").localizedCaseInsensitiveCompare($1.jobTitle ?? "") == .orderedAscending
+        }
     }
 
     var body: some View {
@@ -15,7 +26,7 @@ struct MyJobsView: View {
             VStack(spacing: 0) {
                 Picker("View", selection: $showActiveOnly) {
                     Text("Active").tag(true)
-                    Text("All").tag(false)
+                    Text("Archived").tag(false)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 16)
@@ -53,15 +64,21 @@ struct MyJobsView: View {
                         }
 
                         if displayedStages.allSatisfy({ appliedJobsVM.jobs(for: $0).isEmpty }) {
-                            emptyState
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            Group {
+                                if showActiveOnly {
+                                    activeEmptyState
+                                } else {
+                                    archivedEmptyState
+                                }
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                         } else {
                             ScrollView(.vertical, showsIndicators: false) {
                                 LazyVStack(spacing: 0) {
                                     ForEach(displayedStages, id: \.self) { stage in
                                         PipelineColumnView(
                                             stage: stage,
-                                            jobs: appliedJobsVM.jobs(for: stage),
+                                            jobs: sortedJobs(for: stage),
                                             onJobTap: { job in selectedJob = job }
                                         )
                                         Divider()
@@ -109,7 +126,7 @@ struct MyJobsView: View {
         }
     }
 
-    private var emptyState: some View {
+    private var activeEmptyState: some View {
         VStack(spacing: 24) {
             ZStack {
                 Circle()
@@ -147,6 +164,33 @@ struct MyJobsView: View {
                 )
             )
             .cornerRadius(12)
+        }
+        .padding(.horizontal, 32)
+        .padding(.vertical, 40)
+    }
+
+    private var archivedEmptyState: some View {
+        VStack(spacing: 24) {
+            ZStack {
+                Circle()
+                    .fill(Color.flashTextSecondary.opacity(0.10))
+                    .frame(width: 100, height: 100)
+                Image(systemName: "archivebox")
+                    .font(.system(size: 44, weight: .light))
+                    .foregroundColor(.flashTextSecondary)
+            }
+
+            VStack(spacing: 8) {
+                Text("No archived applications")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(.flashNavy)
+                Text("Jobs you archive or that don\u{2019}t work out will appear here.")
+                    .font(.system(size: 14))
+                    .foregroundColor(.flashDark)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(3)
+                    .padding(.horizontal, 40)
+            }
         }
         .padding(.horizontal, 32)
         .padding(.vertical, 40)

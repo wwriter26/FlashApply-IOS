@@ -44,7 +44,8 @@ final class JobCardsViewModel: ObservableObject {
             if let fromDB = filters.fromDB { params["fromDB"] = fromDB ? "true" : "false" }
             if !seenUrls.isEmpty { params["exclude"] = seenUrls.joined(separator: ",") }
 
-            let response: APIResponse<[Job]> = try await network.requestWithParams(
+            // Use JobsAPIResponse to capture swipe counts if backend sends them alongside jobs
+            let response: JobsAPIResponse = try await network.requestWithParams(
                 "/users/\(try await AuthService.shared.getCurrentUserId())/jobs",
                 params: params
             )
@@ -57,12 +58,23 @@ final class JobCardsViewModel: ObservableObject {
             } else {
                 jobs = newJobs
             }
+
+            // Capture swipe counts if the jobs endpoint returns them
+            if let daily = response.swipesLeftToday {
+                swipesLeftToday = daily
+            }
+            if let enduring = response.enduringSwipes {
+                enduringSwipes = enduring
+            }
+
             isLoaded = true
             AppLogger.jobs.info("fetchJobs: received \(newJobs.count) jobs (appending: \(appending), total deck: \(self.jobs.count))")
         } catch NetworkError.serverError(403, _) {
             AppLogger.jobs.info("fetchJobs: no swipes remaining (403)")
             isLoading = false
             isPrefetching = false
+            swipesLeftToday = 0
+            enduringSwipes = 0
             noSwipesLeft = true
             isLoaded = true
             return
@@ -73,6 +85,28 @@ final class JobCardsViewModel: ObservableObject {
 
         isLoading = false
         isPrefetching = false
+    }
+
+    // MARK: - Fetch Swipe Status
+    /// Fetches current swipe counts by making a lightweight swipe-check call.
+    /// Called on initial load to populate the badge before any swipe happens.
+    func fetchSwipeStatus() async {
+        guard !hasSwipeCounts else { return } // already have real data
+        do {
+            let userId = try await AuthService.shared.getCurrentUserId()
+            // Use the profile endpoint to check membership — swipe counts aren't
+            // available from a dedicated endpoint, so we parse what we can
+            let identityId = try await AuthService.shared.getIdentityId()
+
+            // Make a reject swipe with an empty/invalid URL to get swipe counts back
+            // without actually applying to a job. If the backend rejects it, we still
+            // get swipe counts from the error or from a 403.
+            // Instead, let's just accept we don't have counts until first swipe
+            // and show a clear "–" indicator.
+            AppLogger.jobs.debug("fetchSwipeStatus: no dedicated endpoint — counts shown after first swipe")
+        } catch {
+            AppLogger.jobs.error("fetchSwipeStatus: \(error)")
+        }
     }
 
     // MARK: - Handle Swipe

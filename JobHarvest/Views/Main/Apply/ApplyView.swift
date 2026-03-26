@@ -6,6 +6,7 @@ struct ApplyView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
     @State private var showFilters = false
+    @State private var showSwipeInfo = false
     @State private var filters = JobFilters()
     @State private var currentFilters = JobFilters()
 
@@ -83,45 +84,97 @@ struct ApplyView: View {
                         group.addTask { await jobCardsVM.fetchJobs() }
                     }
                 }
+                // Bridge swipe counts from profile response to jobCardsVM
+                if !jobCardsVM.hasSwipeCounts {
+                    if let daily = profileVM.profile.swipesLeftToday {
+                        jobCardsVM.swipesLeftToday = daily
+                    }
+                    if let enduring = profileVM.profile.enduringSwipes {
+                        jobCardsVM.enduringSwipes = enduring
+                    }
+                }
             }
         }
     }
 
     // MARK: - Swipe Badge
-    private var swipeBadge: some View {
-        let daily = jobCardsVM.swipesLeftToday
-        let enduring = jobCardsVM.enduringSwipes
-        let hasCounts = jobCardsVM.hasSwipeCounts
-        let totalLeft = jobCardsVM.totalSwipesLeft ?? dailySwipeLimit
-        let isLow = totalLeft <= 5
+    private var swipeBadgeLabel: String {
+        if jobCardsVM.hasSwipeCounts {
+            return "DS: \(jobCardsVM.swipesLeftToday ?? 0) | ES: \(jobCardsVM.enduringSwipes ?? 0)"
+        }
+        return "DS: – | ES: –"
+    }
 
-        return Button(action: {}) {
-            HStack(spacing: 6) {
+    private var swipeBadgeIsLow: Bool {
+        (jobCardsVM.totalSwipesLeft ?? dailySwipeLimit) <= 5
+    }
+
+    private var swipeBadge: some View {
+        Button { showSwipeInfo = true } label: {
+            HStack(spacing: 4) {
                 Image(systemName: "bolt.fill")
                     .font(.system(size: 11, weight: .bold))
-                if hasCounts {
-                    Text("Daily: \(daily ?? 0)")
-                        .font(.system(size: 11, weight: .semibold))
-                    Text("|")
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
-                    Text("Enduring: \(enduring ?? 0)")
-                        .font(.system(size: 11, weight: .semibold))
-                } else {
-                    Text("\(dailySwipeLimit)/day")
-                        .font(.system(size: 11, weight: .semibold))
-                }
+                Text(swipeBadgeLabel)
+                    .font(.system(size: 11, weight: .semibold))
+                    .fixedSize()
             }
-            .foregroundColor(isLow ? .flashOrange : .flashTeal)
+            .foregroundColor(swipeBadgeIsLow ? .flashOrange : .flashTeal)
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
             .background(
-                (isLow ? Color.flashOrange : Color.flashTeal).opacity(0.12)
+                (swipeBadgeIsLow ? Color.flashOrange : Color.flashTeal).opacity(0.12)
             )
             .clipShape(Capsule())
         }
-        .disabled(true)
         .buttonStyle(.plain)
+        .popover(isPresented: $showSwipeInfo) {
+            swipeInfoPopover
+        }
+    }
+
+    private var swipeInfoPopover: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Swipe Counts")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(.flashNavy)
+
+            if !jobCardsVM.hasSwipeCounts {
+                Text("Swipe on a job to see your remaining counts. The server reports your balance after each swipe.")
+                    .font(.system(size: 13))
+                    .foregroundColor(.flashTextSecondary)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .foregroundColor(.flashTeal)
+                        .frame(width: 20)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Daily Swipes (DS): \(jobCardsVM.hasSwipeCounts ? "\(jobCardsVM.swipesLeftToday ?? 0)" : "–")")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text("Resets every day. Based on your plan.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.flashTextSecondary)
+                    }
+                }
+
+                HStack(spacing: 8) {
+                    Image(systemName: "infinity")
+                        .foregroundColor(.flashOrange)
+                        .frame(width: 20)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Enduring Swipes (ES): \(jobCardsVM.hasSwipeCounts ? "\(jobCardsVM.enduringSwipes ?? 0)" : "–")")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text("Bonus swipes that don't expire. Earned through referrals and promotions.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.flashTextSecondary)
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .frame(width: 280)
+        .presentationCompactAdaptation(.popover)
     }
 
     // MARK: - No Resume View
