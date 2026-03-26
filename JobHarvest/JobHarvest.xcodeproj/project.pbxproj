@@ -24,7 +24,6 @@
 		C2DF48A12F4BC19700CE891B /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48552F4BC19700CE891B /* AuthService.swift */; };
 		C2DF48A22F4BC19700CE891B /* ReferralViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48622F4BC19700CE891B /* ReferralViewModel.swift */; };
 		C2DF48A32F4BC19700CE891B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48922F4BC19700CE891B /* ErrorView.swift */; };
-		C2DF48E02F4BC19700CE891B /* ErrorBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48DF2F4BC19700CE891B /* ErrorBannerView.swift */; };
 		C2DF48A42F4BC19700CE891B /* EducationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF487E2F4BC19700CE891B /* EducationSection.swift */; };
 		C2DF48A52F4BC19700CE891B /* PipelineColumnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48772F4BC19700CE891B /* PipelineColumnView.swift */; };
 		C2DF48A62F4BC19700CE891B /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48612F4BC19700CE891B /* ProfileViewModel.swift */; };
@@ -68,7 +67,7 @@
 		C2DF48CC2F4BC19700CE891B /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF484A2F4BC19700CE891B /* AppRouter.swift */; };
 		C2DF48CD2F4BC19700CE891B /* AppliedJobsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF485D2F4BC19700CE891B /* AppliedJobsViewModel.swift */; };
 		C2DF48D12F4BC1D900CE891B /* amplifyconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = C2DF48D02F4BC1C900CE891B /* amplifyconfiguration.json */; };
-		C2DF48D32F4BC1FB00CE891B /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C2DF48D22F4BC1EA00CE891B /* Config.xcconfig */; };
+		C2DF48E02F4BC19700CE891B /* ErrorBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DF48DF2F4BC19700CE891B /* ErrorBannerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -147,10 +146,10 @@
 		C2DF48902F4BC19700CE891B /* CompanyLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyLogoView.swift; sourceTree = "<group>"; };
 		C2DF48912F4BC19700CE891B /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		C2DF48922F4BC19700CE891B /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
-		C2DF48DF2F4BC19700CE891B /* ErrorBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorBannerView.swift; sourceTree = "<group>"; };
 		C2DF48932F4BC19700CE891B /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		C2DF48D02F4BC1C900CE891B /* amplifyconfiguration.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = amplifyconfiguration.json; sourceTree = "<group>"; };
 		C2DF48D22F4BC1EA00CE891B /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		C2DF48DF2F4BC19700CE891B /* ErrorBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorBannerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -525,7 +524,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2620;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					C2DF48072F4BBC6400CE891B = {
 						CreatedOnToolsVersion = 26.2;
@@ -569,7 +568,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2DF48D32F4BC1FB00CE891B /* Config.xcconfig in Resources */,
 				C2DF48D12F4BC1D900CE891B /* amplifyconfiguration.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -743,6 +741,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -799,6 +798,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};

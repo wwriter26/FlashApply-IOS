@@ -10,8 +10,18 @@ final class JobCardsViewModel: ObservableObject {
     @Published var isPrefetching = false
     @Published var isLoaded = false
     @Published var error: String?
-    @Published var swipesRemaining: Int?
+    @Published var swipesLeftToday: Int?
+    @Published var enduringSwipes: Int?
     @Published var noSwipesLeft = false
+
+    /// True after the first swipe response — means we have real counts from the backend
+    var hasSwipeCounts: Bool { swipesLeftToday != nil }
+
+    /// Total swipes available (daily + enduring)
+    var totalSwipesLeft: Int? {
+        guard let daily = swipesLeftToday else { return nil }
+        return daily + (enduringSwipes ?? 0)
+    }
 
     private let network = NetworkService.shared
     private var seenUrls: Set<String> = []
@@ -51,8 +61,11 @@ final class JobCardsViewModel: ObservableObject {
             AppLogger.jobs.info("fetchJobs: received \(newJobs.count) jobs (appending: \(appending), total deck: \(self.jobs.count))")
         } catch NetworkError.serverError(403, _) {
             AppLogger.jobs.info("fetchJobs: no swipes remaining (403)")
+            isLoading = false
+            isPrefetching = false
             noSwipesLeft = true
             isLoaded = true
+            return
         } catch {
             AppLogger.jobs.error("fetchJobs: failed — \(error.localizedDescription)")
             self.error = error.humanReadableDescription
@@ -64,6 +77,13 @@ final class JobCardsViewModel: ObservableObject {
 
     // MARK: - Handle Swipe
     func handleSwipe(job: Job, isAccepting: Bool, answers: [String: String] = [:]) async -> SwipeResponse? {
+        // Block if we know there are no swipes left
+        if noSwipesLeft { return nil }
+        if let total = totalSwipesLeft, total <= 0 {
+            noSwipesLeft = true
+            return nil
+        }
+
         // Remove card from deck immediately (optimistic)
         jobs.removeAll { $0.jobUrl == job.jobUrl }
 
@@ -87,10 +107,28 @@ final class JobCardsViewModel: ObservableObject {
                 body: body
             )
             let response = wrapper.data
-            if let remaining = response?.swipesRemaining {
-                swipesRemaining = remaining
+
+            // Update swipe counts from backend response
+            if let daily = response?.swipesLeftToday {
+                swipesLeftToday = daily
             }
+            if let enduring = response?.enduringSwipes {
+                enduringSwipes = enduring
+            }
+
+            // Check if out of swipes after this action
+            if let daily = swipesLeftToday, let enduring = enduringSwipes,
+               daily <= 0 && enduring <= 0 {
+                noSwipesLeft = true
+            }
+
             return response
+        } catch NetworkError.serverError(403, _) {
+            AppLogger.jobs.error("Swipe error: no swipes remaining (403)")
+            swipesLeftToday = 0
+            enduringSwipes = 0
+            noSwipesLeft = true
+            return nil
         } catch {
             AppLogger.jobs.error("Swipe error: \(error)")
             return nil
@@ -108,7 +146,8 @@ final class JobCardsViewModel: ObservableObject {
         isPrefetching = false
         isLoaded = false
         error = nil
-        swipesRemaining = nil
+        swipesLeftToday = nil
+        enduringSwipes = nil
         noSwipesLeft = false
         seenUrls = []
     }

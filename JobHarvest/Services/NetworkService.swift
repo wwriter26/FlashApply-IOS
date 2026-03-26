@@ -159,10 +159,14 @@ final class NetworkService {
                     AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) — decode error: \(error) | raw: \(raw)")
                     throw NetworkError.decodingFailed(error)
                 }
-            case 401, 403:
+            case 401:
                 let body = String(data: data, encoding: .utf8) ?? ""
-                AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) → \(http.statusCode) unauthorized — \(body)")
+                AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) → 401 unauthorized — \(body)")
                 throw NetworkError.unauthorized
+            case 403:
+                let body = String(data: data, encoding: .utf8) ?? ""
+                AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) → 403 forbidden — \(body)")
+                throw NetworkError.serverError(403, body)
             default:
                 let message = String(data: data, encoding: .utf8)
                 AppLogger.network.error("[\(request.httpMethod ?? "GET")] \(fullURL) → \(http.statusCode) — \(message ?? "no body")")

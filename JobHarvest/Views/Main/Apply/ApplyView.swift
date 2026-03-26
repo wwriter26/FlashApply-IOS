@@ -24,6 +24,14 @@ struct ApplyView: View {
         currentFilters != JobFilters()
     }
 
+    private var dailySwipeLimit: Int {
+        switch profileVM.profile.plan ?? "free" {
+        case "plus": return 25
+        case "pro": return 50
+        default: return 5
+        }
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -58,22 +66,8 @@ struct ApplyView: View {
                     }
                     .disabled(!hasResume)
                 }
-                if let remaining = jobCardsVM.swipesRemaining {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "bolt.fill")
-                                .font(.system(size: 10, weight: .bold))
-                            Text("\(remaining) left")
-                                .font(.system(size: 12, weight: .semibold))
-                        }
-                        .foregroundColor(remaining <= 5 ? .flashOrange : .flashTeal)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(
-                            (remaining <= 5 ? Color.flashOrange : Color.flashTeal).opacity(0.12)
-                        )
-                        .clipShape(Capsule())
-                    }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    swipeBadge
                 }
             }
             .sheet(isPresented: $showFilters) {
@@ -91,6 +85,43 @@ struct ApplyView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Swipe Badge
+    private var swipeBadge: some View {
+        let daily = jobCardsVM.swipesLeftToday
+        let enduring = jobCardsVM.enduringSwipes
+        let hasCounts = jobCardsVM.hasSwipeCounts
+        let totalLeft = jobCardsVM.totalSwipesLeft ?? dailySwipeLimit
+        let isLow = totalLeft <= 5
+
+        return Button(action: {}) {
+            HStack(spacing: 6) {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 11, weight: .bold))
+                if hasCounts {
+                    Text("Daily: \(daily ?? 0)")
+                        .font(.system(size: 11, weight: .semibold))
+                    Text("|")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                    Text("Enduring: \(enduring ?? 0)")
+                        .font(.system(size: 11, weight: .semibold))
+                } else {
+                    Text("\(dailySwipeLimit)/day")
+                        .font(.system(size: 11, weight: .semibold))
+                }
+            }
+            .foregroundColor(isLow ? .flashOrange : .flashTeal)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(
+                (isLow ? Color.flashOrange : Color.flashTeal).opacity(0.12)
+            )
+            .clipShape(Capsule())
+        }
+        .disabled(true)
+        .buttonStyle(.plain)
     }
 
     // MARK: - No Resume View

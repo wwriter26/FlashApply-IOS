@@ -104,5 +104,7 @@ struct SwipeResponse: Codable {
     let success: Bool?
     let message: String?
     let swipesRemaining: Int?
+    let swipesLeftToday: Int?
+    let enduringSwipes: Int?
     let jobData: AppliedJob?
 }

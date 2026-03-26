@@ -20,16 +20,44 @@ struct PremiumView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+                    // Current plan banner
+                    HStack(spacing: 12) {
+                        Image(systemName: subscriptionVM.currentPlan == .free ? "person.circle.fill" : "crown.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(subscriptionVM.currentPlan == .free ? .flashTextSecondary : .flashTeal)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Current Plan")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.flashTextSecondary)
+                            Text("\(subscriptionVM.currentPlan.displayName) Plan")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.flashNavy)
+                        }
+                        Spacer()
+                        Text("\(subscriptionVM.currentPlan.dailySwipes) swipes/day")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.flashTeal)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.flashTeal.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+                    .padding(16)
+                    .background(Color.flashWhite)
+                    .cornerRadius(14)
+                    .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+
                     // Header
                     VStack(spacing: 8) {
                         Image(systemName: "bolt.circle.fill")
-                            .font(.system(size: 52))
+                            .font(.system(size: 42))
                             .foregroundColor(.flashTeal)
-                            .padding(.top, 20)
-                        Text("Upgrade JobHarvest")
-                            .font(.system(size: 26, weight: .bold))
+                        Text(subscriptionVM.currentPlan == .free ? "Upgrade JobHarvest" : "Manage Your Plan")
+                            .font(.system(size: 22, weight: .bold))
                             .foregroundColor(.flashNavy)
-                        Text("Apply to more jobs, faster")
+                        Text(subscriptionVM.currentPlan == .free ? "Apply to more jobs, faster" : "Switch plans anytime")
                             .foregroundColor(.secondary)
                     }
 
@@ -106,7 +134,8 @@ struct PremiumView: View {
             .task {
                 // Bridge plan from profileVM to subscriptionVM so the correct plan is shown
                 if let planString = profileVM.profile.plan,
-                   let plan = SubscriptionPlan(rawValue: planString) {
+                   !planString.isEmpty,
+                   let plan = SubscriptionPlan(rawValue: planString.lowercased()) {
                     subscriptionVM.currentPlan = plan
                 }
             }
@@ -117,7 +146,8 @@ struct PremiumView: View {
                 Task {
                     await profileVM.fetchProfile()
                     if let planString = profileVM.profile.plan,
-                       let plan = SubscriptionPlan(rawValue: planString) {
+                       !planString.isEmpty,
+                       let plan = SubscriptionPlan(rawValue: planString.lowercased()) {
                         subscriptionVM.currentPlan = plan
                         if plan != .free {
                             paymentResultMessage = "Plan updated! You're now on \(plan.displayName)."

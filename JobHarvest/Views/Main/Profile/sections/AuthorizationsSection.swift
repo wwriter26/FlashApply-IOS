@@ -14,17 +14,29 @@ struct AuthorizationsSection: View {
     var body: some View {
         Form {
             Section("US Work Authorization") {
-                Picker("Authorized to work in US", selection: $authorizedUS) {
-                    Text("Yes").tag("Yes")
-                    Text("No").tag("No")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Authorized to work in US")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Picker("Authorized to work in US", selection: $authorizedUS) {
+                        Text("Yes").tag("Yes")
+                        Text("No").tag("No")
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
                 }
-                .pickerStyle(.segmented)
 
-                Picker("US Citizen", selection: $isUsCitizen) {
-                    Text("Yes").tag("Yes")
-                    Text("No").tag("No")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("US Citizen")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Picker("US Citizen", selection: $isUsCitizen) {
+                        Text("Yes").tag("Yes")
+                        Text("No").tag("No")
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
                 }
-                .pickerStyle(.segmented)
             }
 
             Section("Canada") {
