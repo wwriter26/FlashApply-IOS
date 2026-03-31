@@ -100,7 +100,9 @@ struct PremiumView: View {
                             PlanCard(
                                 tier: tier,
                                 plan: fullPlan,
-                                isCurrent: subscriptionVM.currentPlan.tier == tier,
+                                // Pass the full plan so PlanCard can do exact-match
+                                // and rank-based comparisons internally.
+                                currentPlan: subscriptionVM.currentPlan,
                                 onSelect: { selectPlan(fullPlan) }
                             )
                         }
@@ -196,10 +198,27 @@ struct PremiumView: View {
 struct PlanCard: View {
     let tier: SubscriptionTier
     let plan: SubscriptionPlan
-    let isCurrent: Bool
+    /// The user's full active plan — used for exact-match and rank comparisons.
+    let currentPlan: SubscriptionPlan
     let onSelect: () -> Void
 
-    var priceText: String {
+    // MARK: - Derived state
+
+    /// True only when this card represents the exact plan the user holds,
+    /// including billing period (e.g. lifetime-pro != monthly-pro).
+    private var isExactCurrentPlan: Bool {
+        plan == currentPlan
+    }
+
+    /// True when this card is a lower-rank plan than what the user already has.
+    /// Prevents presenting a downgrade as a purchasable option.
+    private var isDowngrade: Bool {
+        plan < currentPlan
+    }
+
+    // MARK: - Helpers
+
+    private var priceText: String {
         let p = plan.price
         if p == 0 { return "Free" }
         switch plan.billingPeriod {
@@ -214,6 +233,8 @@ struct PlanCard: View {
             return "Free"
         }
     }
+
+    // MARK: - Body
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -240,12 +261,21 @@ struct PlanCard: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                if isCurrent {
+                if isExactCurrentPlan {
+                    // Exact match — show badge, suppress button below
                     Text("Current Plan")
                         .font(.caption.weight(.bold))
                         .padding(.horizontal, 10).padding(.vertical, 5)
                         .background(Color.flashTeal.opacity(0.15))
                         .foregroundColor(.flashTeal)
+                        .cornerRadius(20)
+                } else if isDowngrade {
+                    // Already included in user's higher-ranked plan — no action needed
+                    Text("Included")
+                        .font(.caption.weight(.bold))
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .background(Color.secondary.opacity(0.12))
+                        .foregroundColor(.secondary)
                         .cornerRadius(20)
                 }
             }
@@ -261,7 +291,9 @@ struct PlanCard: View {
                 }
             }
 
-            if !isCurrent {
+            // Only show the CTA button for genuine upgrades — never for the
+            // current plan or any plan that would be a downgrade.
+            if !isExactCurrentPlan && !isDowngrade {
                 Button(action: onSelect) {
                     Text("Choose \(tier.displayName)")
                 }
@@ -274,7 +306,8 @@ struct PlanCard: View {
         .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(isCurrent ? Color.flashTeal : Color.clear, lineWidth: 2)
+                // Highlight the teal border only on the exact active plan
+                .stroke(isExactCurrentPlan ? Color.flashTeal : Color.clear, lineWidth: 2)
         )
     }
 }

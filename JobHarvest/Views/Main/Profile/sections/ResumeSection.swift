@@ -1,13 +1,15 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import PDFKit
 import os
 
 struct ResumeSection: View {
     @EnvironmentObject var profileVM: ProfileViewModel
     @State private var showDocumentPicker = false
-    @State private var resumeURL: URL?
+    // Drives the PDF preview sheet — non-nil means "sheet is open for this URL"
+    @State private var pdfPreviewURL: URL?
     @State private var isUploading = false
-    @State private var showDownload = false
+    @State private var isLoadingPreview = false
     @State private var uploadStatus = ""
 
     var body: some View {
@@ -21,10 +23,17 @@ struct ResumeSection: View {
                             Text("Uploaded").font(.caption).foregroundColor(.secondary)
                         }
                         Spacer()
-                        Button(action: { downloadResume() }) {
-                            Image(systemName: "arrow.down.circle")
-                                .foregroundColor(.flashTeal)
+                        Button(action: { viewResume() }) {
+                            if isLoadingPreview {
+                                ProgressView()
+                                    .frame(width: 22, height: 22)
+                            } else {
+                                Image(systemName: "eye")
+                                    .foregroundColor(.flashTeal)
+                            }
                         }
+                        .disabled(isLoadingPreview)
+                        .accessibilityLabel("View resume")
                     }
                 } else {
                     Text("No resume uploaded").foregroundColor(.secondary)
@@ -59,8 +68,10 @@ struct ResumeSection: View {
                 uploadResume(from: url)
             }
         }
-        .alert("Resume Downloaded", isPresented: $showDownload) {
-            Button("OK") {}
+        // Item-based binding: sheet appears when pdfPreviewURL is non-nil,
+        // dismisses (and deallocates the PDFDocument) when set back to nil.
+        .sheet(item: $pdfPreviewURL) { url in
+            PDFPreviewSheet(url: url)
         }
     }
 
@@ -89,11 +100,70 @@ struct ResumeSection: View {
         }
     }
 
-    private func downloadResume() {
+    private func viewResume() {
+        isLoadingPreview = true
         Task {
-            if let link = await profileVM.getResumeLink(), let url = URL(string: link) {
-                await UIApplication.shared.open(url)
+            defer { isLoadingPreview = false }
+            guard let link = await profileVM.getResumeLink(),
+                  let url = URL(string: link) else {
+                AppLogger.files.error("ResumeSection: failed to get resume pre-signed URL")
+                return
             }
+            // Setting this non-nil triggers the .sheet(item:) presentation.
+            pdfPreviewURL = url
         }
+    }
+}
+
+// MARK: - URL + Identifiable
+
+// .sheet(item:) requires Identifiable. The absolute string is a stable, unique
+// identity for a URL, which is safe here because the pre-signed URL changes on
+// every fetch anyway — we never need to diff two live URLs.
+extension URL: @retroactive Identifiable {
+    public var id: String { absoluteString }
+}
+
+// MARK: - PDF Preview Sheet
+
+/// Full-screen sheet wrapper with a Done button so the user can dismiss.
+private struct PDFPreviewSheet: View {
+    let url: URL
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            PDFViewer(url: url)
+                .ignoresSafeArea(edges: .bottom)
+                .navigationTitle("Resume")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { dismiss() }
+                    }
+                }
+        }
+    }
+}
+
+// MARK: - PDFViewer
+
+/// UIViewRepresentable wrapper around PDFKit's PDFView.
+/// PDFDocument is initialised once in makeUIView; updateUIView is a no-op
+/// because the URL is constant for the lifetime of the sheet.
+private struct PDFViewer: UIViewRepresentable {
+    let url: URL
+
+    func makeUIView(context: Context) -> PDFView {
+        let pdfView = PDFView()
+        pdfView.autoScales = true          // fills the available width automatically
+        pdfView.displayMode = .singlePageContinuous
+        pdfView.displayDirection = .vertical
+        pdfView.document = PDFDocument(url: url)
+        return pdfView
+    }
+
+    func updateUIView(_ pdfView: PDFView, context: Context) {
+        // URL is immutable after creation; nothing to update.
     }
 }

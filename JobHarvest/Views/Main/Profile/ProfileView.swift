@@ -40,22 +40,29 @@ struct ProfileView: View {
 
             // Save success banner
             if showSaveSuccess {
-                Section {
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color(hex: "#00c97a"))
-                        Text("Changes saved")
-                            .font(.system(size: 14))
-                            .foregroundColor(.flashDark)
-                    }
-                    .padding(14)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(hex: "#00c97a").opacity(0.10))
-                    .cornerRadius(10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
+                    Text("Changes saved successfully")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(14)
+                .background(
+                    LinearGradient(
+                        colors: [Color(hex: "#00c97a"), Color(hex: "#00b36b")],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .cornerRadius(12)
+                .shadow(color: Color(hex: "#00c97a").opacity(0.3), radius: 8, x: 0, y: 4)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .transition(.move(edge: .top).combined(with: .opacity))
             }
 
             // Completion bar

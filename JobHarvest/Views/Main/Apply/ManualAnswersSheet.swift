@@ -22,8 +22,15 @@ struct ManualAnswersSheet: View {
         field.options ?? field.selectOptions
     }
 
+    // Deduplicate backend fields by their stable id to prevent SwiftUI ForEach from
+    // rendering the same question twice when the server sends duplicate entries.
+    private var uniqueFields: [ManualInputField] {
+        var seen = Set<String>()
+        return fields.filter { seen.insert($0.id).inserted }
+    }
+
     var allRequiredFilled: Bool {
-        fields.filter { $0.required == true }.allSatisfy { !(answers[key(for: $0)]?.isEmpty ?? true) }
+        uniqueFields.filter { $0.required == true }.allSatisfy { !(answers[key(for: $0)]?.isEmpty ?? true) }
     }
 
     var body: some View {
@@ -36,7 +43,7 @@ struct ManualAnswersSheet: View {
                 }
 
                 Section("Application Questions") {
-                    ForEach(fields) { field in
+                    ForEach(uniqueFields) { field in
                         fieldView(field)
                     }
                 }

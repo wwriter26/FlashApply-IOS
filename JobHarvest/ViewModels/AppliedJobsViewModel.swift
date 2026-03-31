@@ -115,25 +115,30 @@ final class AppliedJobsViewModel: ObservableObject {
     // MARK: - Fetch Job Details
     func fetchJobDetails(jobUrl: String, companyId: String?) async {
         selectedJobLoading = true
+        defer { selectedJobLoading = false }
         do {
             struct DetailRequest: Encodable { let jobUrl: String; let companyId: String? }
             let req = DetailRequest(jobUrl: jobUrl, companyId: companyId)
-            let wrapper: APIResponse<JobDetailResponse> = try await network.request("/getJobDetails", method: "POST", body: req)
-            let detail = wrapper.data
 
-            if var job = selectedJob {
-                job.jobDescription = detail?.jobDescription
-                job.jobDescriptionHTML = detail?.jobDescriptionHTML
-                job.desiredSkillsTags = detail?.desiredSkillsTags
-                job.jobRequirements = detail?.jobRequirements
-                job.jobResponsibilities = detail?.jobResponsibilities
-                job.companyData = detail?.companyData
-                selectedJob = job
+            // /getJobDetails returns the detail object at the top level (no {"data":...} envelope).
+            let detail: JobDetailResponse = try await network.request("/getJobDetails", method: "POST", body: req)
+
+            // Capture the current selectedJob identity so a quick dismiss + reopen
+            // of a different job cannot merge stale detail into the wrong entry.
+            guard var job = selectedJob, job.jobUrl == jobUrl else {
+                AppLogger.jobs.debug("fetchJobDetails: selectedJob changed mid-flight, discarding result for \(jobUrl)")
+                return
             }
+            job.jobDescription = detail.jobDescription
+            job.jobDescriptionHTML = detail.jobDescriptionHTML
+            job.desiredSkillsTags = detail.desiredSkillsTags
+            job.jobRequirements = detail.jobRequirements
+            job.jobResponsibilities = detail.jobResponsibilities
+            job.companyData = detail.companyData
+            selectedJob = job
         } catch {
-            AppLogger.jobs.error("fetchJobDetails: \(error)")
+            AppLogger.jobs.error("fetchJobDetails: \(error.localizedDescription)")
         }
-        selectedJobLoading = false
     }
 
     // MARK: - Stage Accessors

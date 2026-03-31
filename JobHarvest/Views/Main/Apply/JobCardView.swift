@@ -36,8 +36,8 @@ struct JobCardView: View {
             }
         }
         .offset(x: isTopCard ? dragOffset.width : 0,
-                y: (isTopCard ? dragOffset.height * 0.2 : 0) + stackOffset)
-        .rotationEffect(.degrees(isTopCard ? Double(dragOffset.width / 20) : 0))
+                y: (isTopCard ? dragOffset.height * 0.05 : 0) + stackOffset)
+        .rotationEffect(.degrees(isTopCard ? Double(dragOffset.width / 35) : 0))
         .scaleEffect(isTopCard ? 1.0 : max(0.95 - stackOffset * 0.005, 0.9))
         .gesture(isTopCard ? dragGesture : nil)
         .sheet(isPresented: $showManualAnswers, onDismiss: {
@@ -70,7 +70,7 @@ struct JobCardView: View {
                     withAnimation(.easeOut(duration: 0.35)) {
                         dragOffset = CGSize(
                             width: isAccepting ? 600 : -600,
-                            height: value.translation.height
+                            height: 0
                         )
                     }
                     Task {
@@ -484,7 +484,13 @@ struct JobCardView: View {
             // Accept button
             Button(action: {
                 if !(job.manualInputFields?.isEmpty ?? true) {
-                    showManualAnswers = true
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    withAnimation(.easeOut(duration: 0.35)) { dragOffset = CGSize(width: 600, height: 0) }
+                    pendingSwipeIsAccepting = true
+                    // Small delay so the card exit animation is visible before the sheet covers the screen
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        showManualAnswers = true
+                    }
                 } else {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     withAnimation(.easeOut(duration: 0.35)) { dragOffset = CGSize(width: 600, height: 0) }

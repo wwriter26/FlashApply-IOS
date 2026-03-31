@@ -68,8 +68,17 @@ struct JobDetailSheet: View {
                 }
             }
             .task {
+                // Set loading true synchronously before the first render so tabs
+                // show a spinner rather than a flash of the empty-state placeholder.
+                appliedJobsVM.selectedJobLoading = true
                 appliedJobsVM.selectedJob = job
                 await appliedJobsVM.fetchJobDetails(jobUrl: job.jobUrl, companyId: job.companyId)
+            }
+            .onDisappear {
+                // Clear stale detail data so the next job opened starts clean
+                // rather than briefly showing the previous job's details.
+                appliedJobsVM.selectedJob = nil
+                appliedJobsVM.selectedJobLoading = false
             }
         }
     }

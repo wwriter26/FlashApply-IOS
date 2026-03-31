@@ -50,7 +50,7 @@ enum BillingPeriod: String, CaseIterable, Identifiable {
 }
 
 // MARK: - Subscription Plan (matches backend MembershipPlan enum)
-enum SubscriptionPlan: String, CaseIterable, Identifiable {
+enum SubscriptionPlan: String, CaseIterable, Identifiable, Comparable {
     case free = "free"
     case monthlyPlus = "monthly-plus"
     case monthlyPro = "monthly-pro"
@@ -60,6 +60,25 @@ enum SubscriptionPlan: String, CaseIterable, Identifiable {
     case lifetimePro = "lifetime-pro"
 
     var id: String { rawValue }
+
+    /// Ordinal used for upgrade/downgrade comparisons.
+    /// Higher rank = better plan. Satisfies Comparable via `<` below.
+    var rank: Int {
+        switch self {
+        case .free:         return 0
+        case .monthlyPlus:  return 1
+        case .monthlyPro:   return 2
+        case .seasonalPlus: return 3
+        case .seasonalPro:  return 4
+        case .lifetimePlus: return 5
+        case .lifetimePro:  return 6
+        }
+    }
+
+    // Comparable — lets callers write `plan < currentPlan` directly.
+    static func < (lhs: SubscriptionPlan, rhs: SubscriptionPlan) -> Bool {
+        lhs.rank < rhs.rank
+    }
 
     var tier: SubscriptionTier? {
         switch self {
