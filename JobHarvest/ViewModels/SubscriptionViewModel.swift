@@ -12,10 +12,11 @@ final class SubscriptionViewModel: ObservableObject {
 
     private let network = NetworkService.shared
 
-    // MARK: - Create Checkout Session (returns web URL for Option A)
+    // MARK: - Create Checkout Session
     func createCheckoutSession(plan: SubscriptionPlan) async {
         isLoading = true
         error = nil
+        checkoutURL = nil
         AppLogger.subscription.debug("createCheckoutSession: plan = \(plan.rawValue)")
         do {
             struct CheckoutBody: Encodable { let planChosen: String }
@@ -26,10 +27,18 @@ final class SubscriptionViewModel: ObservableObject {
             )
             let response = wrapper.data
             if let urlString = response?.url, let url = URL(string: urlString) {
+                // Backend returned a checkout URL — open in Safari.
                 checkoutURL = url
                 AppLogger.subscription.info("createCheckoutSession: checkout URL ready for \(plan.rawValue)")
+            } else if let sessionId = response?.sessionId, !sessionId.isEmpty {
+                // No URL but we have a session ID — build hosted checkout URL.
+                if let url = URL(string: "https://checkout.stripe.com/c/pay/\(sessionId)") {
+                    checkoutURL = url
+                    AppLogger.subscription.info("createCheckoutSession: built checkout URL from sessionId for \(plan.rawValue)")
+                }
             } else {
-                AppLogger.subscription.error("createCheckoutSession: response had no url — \(String(describing: response))")
+                AppLogger.subscription.error("createCheckoutSession: response had no url or sessionId — \(String(describing: response))")
+                self.error = "Could not start checkout. Please try again."
             }
         } catch {
             AppLogger.subscription.error("createCheckoutSession: failed — \(error.localizedDescription)")

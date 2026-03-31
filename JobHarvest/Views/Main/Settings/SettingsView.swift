@@ -3,6 +3,8 @@ import UIKit
 
 struct SettingsView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var profileVM: ProfileViewModel
+    @EnvironmentObject var jobCardsVM: JobCardsViewModel
     @StateObject private var subscriptionVM = SubscriptionViewModel()
     @State private var showChangeEmail = false
     @State private var showChangePassword = false
@@ -12,6 +14,27 @@ struct SettingsView: View {
 
     var body: some View {
         List {
+            // Swipe Balance
+            Section("Swipe Balance") {
+                HStack {
+                    Label("Daily Swipes", systemImage: "clock.arrow.circlepath")
+                    Spacer()
+                    Text(jobCardsVM.hasSwipeCounts ? "\(jobCardsVM.swipesLeftToday ?? 0) remaining" : "–")
+                        .foregroundColor(.secondary)
+                }
+                HStack {
+                    Label("Enduring Swipes", systemImage: "infinity")
+                    Spacer()
+                    Text(jobCardsVM.hasSwipeCounts ? "\(jobCardsVM.enduringSwipes ?? 0) remaining" : "–")
+                        .foregroundColor(.secondary)
+                }
+                if !jobCardsVM.hasSwipeCounts {
+                    Text("Swipe on a job to see your balance. Counts update after each swipe.")
+                        .font(.caption)
+                        .foregroundColor(.flashTextSecondary)
+                }
+            }
+
             // Account
             Section("Account") {
                 Button("Change Email") { showChangeEmail = true }
@@ -22,6 +45,13 @@ struct SettingsView: View {
 
             // Subscription
             Section("Subscription") {
+                HStack {
+                    Label("Current Plan", systemImage: "crown.fill")
+                        .foregroundColor(.flashOrange)
+                    Spacer()
+                    Text(SubscriptionPlan.fromBackend(profileVM.profile.plan ?? "free").displayName)
+                        .foregroundColor(.secondary)
+                }
                 NavigationLink(destination: PremiumView()) {
                     Label("Manage Plan", systemImage: "star.fill")
                         .foregroundColor(.flashOrange)

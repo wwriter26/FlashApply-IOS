@@ -1,4 +1,5 @@
 import SwiftUI
+import os
 
 struct PremiumView: View {
     @StateObject private var subscriptionVM = SubscriptionViewModel()
@@ -14,22 +15,21 @@ struct PremiumView: View {
     @State private var paymentResultMessage: String?
     @State private var paymentResultIsSuccess = false
 
-    enum BillingPeriod { case monthly, seasonal, lifetime }
-
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
                     // Current plan banner
                     HStack(spacing: 12) {
-                        Image(systemName: subscriptionVM.currentPlan == .free ? "person.circle.fill" : "crown.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(subscriptionVM.currentPlan == .free ? .flashTextSecondary : .flashTeal)
+                        Image("jobHarvestTransparent")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Current Plan")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(.flashTextSecondary)
-                            Text("\(subscriptionVM.currentPlan.displayName) Plan")
+                            Text(subscriptionVM.currentPlan.displayName)
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.flashNavy)
                         }
@@ -51,9 +51,10 @@ struct PremiumView: View {
 
                     // Header
                     VStack(spacing: 8) {
-                        Image(systemName: "bolt.circle.fill")
-                            .font(.system(size: 42))
-                            .foregroundColor(.flashTeal)
+                        Image("jobHarvestTransparent")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 52, height: 52)
                         Text(subscriptionVM.currentPlan == .free ? "Upgrade JobHarvest" : "Manage Your Plan")
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(.flashNavy)
@@ -92,14 +93,15 @@ struct PremiumView: View {
                             .fontWeight(.semibold)
                     }
 
-                    // Plan Cards
+                    // Plan Cards — one for Plus, one for Pro
                     VStack(spacing: 16) {
-                        ForEach([SubscriptionPlan.plus, .pro], id: \.self) { plan in
+                        ForEach(SubscriptionTier.allCases) { tier in
+                            let fullPlan = SubscriptionPlan.from(tier: tier, period: billingPeriod)
                             PlanCard(
-                                plan: plan,
-                                billingPeriod: billingPeriod,
-                                isCurrent: subscriptionVM.currentPlan == plan,
-                                onSelect: { selectPlan(plan) }
+                                tier: tier,
+                                plan: fullPlan,
+                                isCurrent: subscriptionVM.currentPlan.tier == tier,
+                                onSelect: { selectPlan(fullPlan) }
                             )
                         }
                     }
@@ -132,11 +134,8 @@ struct PremiumView: View {
                 Text(subscriptionVM.error ?? "")
             }
             .task {
-                // Bridge plan from profileVM to subscriptionVM so the correct plan is shown
-                if let planString = profileVM.profile.plan,
-                   !planString.isEmpty,
-                   let plan = SubscriptionPlan(rawValue: planString.lowercased()) {
-                    subscriptionVM.currentPlan = plan
+                if let planString = profileVM.profile.plan, !planString.isEmpty {
+                    subscriptionVM.currentPlan = SubscriptionPlan.fromBackend(planString)
                 }
             }
             .onChange(of: scenePhase) { newPhase in
@@ -145,9 +144,8 @@ struct PremiumView: View {
                 isVerifyingPayment = true
                 Task {
                     await profileVM.fetchProfile()
-                    if let planString = profileVM.profile.plan,
-                       !planString.isEmpty,
-                       let plan = SubscriptionPlan(rawValue: planString.lowercased()) {
+                    if let planString = profileVM.profile.plan, !planString.isEmpty {
+                        let plan = SubscriptionPlan.fromBackend(planString)
                         subscriptionVM.currentPlan = plan
                         if plan != .free {
                             paymentResultMessage = "Plan updated! You're now on \(plan.displayName)."
@@ -158,7 +156,6 @@ struct PremiumView: View {
                         }
                     }
                     isVerifyingPayment = false
-                    // Auto-dismiss success message after 3 seconds
                     if paymentResultIsSuccess {
                         try? await Task.sleep(nanoseconds: 3_000_000_000)
                         paymentResultMessage = nil
@@ -166,6 +163,8 @@ struct PremiumView: View {
                 }
             }
             .overlay {
+                // Show a blocking overlay during the API call to createCheckoutSession
+                // and again during post-payment profile verification.
                 if isVerifyingPayment {
                     ZStack {
                         Color.black.opacity(0.3)
@@ -181,37 +180,38 @@ struct PremiumView: View {
         }
     }
 
+    // MARK: - Checkout
+
     private func selectPlan(_ plan: SubscriptionPlan) {
-        Task {
-            await subscriptionVM.createCheckoutSession(plan: plan)
-            if let url = subscriptionVM.checkoutURL {
-                checkoutURL = url
-                awaitingPaymentReturn = true
-                showWebCheckout = true
-            }
+        let urlString = "https://jobharvest.com/dashboard/premium"
+        AppLogger.subscription.info("selectPlan: opening \(urlString)")
+        if let url = URL(string: urlString) {
+            awaitingPaymentReturn = true
+            UIApplication.shared.open(url)
         }
     }
 }
 
 // MARK: - Plan Card
 struct PlanCard: View {
+    let tier: SubscriptionTier
     let plan: SubscriptionPlan
-    let billingPeriod: PremiumView.BillingPeriod
     let isCurrent: Bool
     let onSelect: () -> Void
 
-    var price: String {
-        switch billingPeriod {
-        case .lifetime:
-            return plan.lifetimePrice.map { "$\(Int($0))" } ?? "Free"
-        case .seasonal:
-            if let seasonal = plan.seasonalPrice {
-                let perMonth = seasonal / 3.0
-                return "$\(Int(seasonal)) (~$\(String(format: "%.0f", perMonth))/mo)"
-            }
-            return "Free"
+    var priceText: String {
+        let p = plan.price
+        if p == 0 { return "Free" }
+        switch plan.billingPeriod {
         case .monthly:
-            return plan.monthlyPrice.map { "$\(Int($0))/mo" } ?? "Free"
+            return "$\(Int(p))/mo"
+        case .seasonal:
+            let perMonth = p / 3.0
+            return "$\(Int(p)) (~$\(String(format: "%.0f", perMonth))/mo)"
+        case .lifetime:
+            return "$\(Int(p)) one-time"
+        case .none:
+            return "Free"
         }
     }
 
@@ -220,10 +220,10 @@ struct PlanCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
-                        Text(plan.displayName)
+                        Text(tier.displayName)
                             .font(.title3.weight(.bold))
                             .foregroundColor(.flashNavy)
-                        if plan == .plus {
+                        if tier == .plus {
                             Text("POPULAR")
                                 .font(.caption2.weight(.bold))
                                 .padding(.horizontal, 8).padding(.vertical, 3)
@@ -232,10 +232,10 @@ struct PlanCard: View {
                                 .cornerRadius(20)
                         }
                     }
-                    Text(price)
+                    Text(priceText)
                         .font(.title2.weight(.bold))
                         .foregroundColor(.flashTeal)
-                    Text("\(plan.dailySwipes) swipes/day")
+                    Text("\(tier.dailySwipes) swipes/day")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -251,7 +251,7 @@ struct PlanCard: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                ForEach(plan.features, id: \.self) { feature in
+                ForEach(tier.features, id: \.self) { feature in
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.flashTeal)
@@ -263,7 +263,7 @@ struct PlanCard: View {
 
             if !isCurrent {
                 Button(action: onSelect) {
-                    Text("Choose \(plan.displayName)")
+                    Text("Choose \(tier.displayName)")
                 }
                 .primaryButtonStyle()
             }
