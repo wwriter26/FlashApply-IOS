@@ -24,6 +24,17 @@ final class AuthViewModel: ObservableObject {
     private let network = NetworkService.shared
     private var hubToken: UnsubscribeToken?
 
+    // MARK: - Lifecycle
+    init() {
+        setupHubListener()
+    }
+
+    deinit {
+        if let token = hubToken {
+            Amplify.Hub.removeListener(token)
+        }
+    }
+
     // MARK: - Check current auth state on app launch
     func checkAuthState() async {
         isLoaded = false
@@ -237,6 +248,24 @@ final class AuthViewModel: ObservableObject {
             AppLogger.auth.error("markOnboardingComplete: failed to update firstLogin attribute — \(error.localizedDescription)")
         }
         isNewUser = false
+    }
+
+    // MARK: - Amplify Hub Listener
+    private func setupHubListener() {
+        hubToken = Amplify.Hub.listen(to: .auth) { [weak self] payload in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                switch payload.eventName {
+                case HubPayload.EventName.Auth.signedIn:
+                    await self.checkAuthState()
+                case HubPayload.EventName.Auth.signedOut,
+                     HubPayload.EventName.Auth.sessionExpired:
+                    self.handleSignOut()
+                default:
+                    break
+                }
+            }
+        }
     }
 
 #if DEBUG
