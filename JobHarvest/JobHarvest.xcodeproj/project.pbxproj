@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C22F1EC02F7D9B4D0002C996 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = C22F1EBF2F7D9B4D0002C996 /* Sentry */; };
+		C22F1EC32F7D9C720002C996 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C22F1EC22F7D9C720002C996 /* SDWebImageSwiftUI */; };
 		C2DF48342F4BBFE100CE891B /* AWSCognitoAuthPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C2DF48332F4BBFE100CE891B /* AWSCognitoAuthPlugin */; };
 		C2DF48362F4BBFE100CE891B /* AWSS3StoragePlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C2DF48352F4BBFE100CE891B /* AWSS3StoragePlugin */; };
 		C2DF48382F4BBFE100CE891B /* Amplify in Frameworks */ = {isa = PBXBuildFile; productRef = C2DF48372F4BBFE100CE891B /* Amplify */; };
@@ -188,9 +190,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C22F1EC32F7D9C720002C996 /* SDWebImageSwiftUI in Frameworks */,
 				C2DF48382F4BBFE100CE891B /* Amplify in Frameworks */,
 				C2DF48342F4BBFE100CE891B /* AWSCognitoAuthPlugin in Frameworks */,
 				C2DF48362F4BBFE100CE891B /* AWSS3StoragePlugin in Frameworks */,
+				C22F1EC02F7D9B4D0002C996 /* Sentry in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,6 +215,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C22F1EC12F7D9C720002C996 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C2DF47FF2F4BBC6400CE891B = {
 			isa = PBXGroup;
 			children = (
@@ -225,6 +236,7 @@
 				C2DF480A2F4BBC6400CE891B /* JobHarvest */,
 				C2DF48182F4BBC6500CE891B /* JobHarvestTests */,
 				C2DF48222F4BBC6500CE891B /* JobHarvestUITests */,
+				C22F1EC12F7D9C720002C996 /* Frameworks */,
 				C2DF48092F4BBC6400CE891B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -465,6 +477,8 @@
 				C2DF48332F4BBFE100CE891B /* AWSCognitoAuthPlugin */,
 				C2DF48352F4BBFE100CE891B /* AWSS3StoragePlugin */,
 				C2DF48372F4BBFE100CE891B /* Amplify */,
+				C22F1EBF2F7D9B4D0002C996 /* Sentry */,
+				C22F1EC22F7D9C720002C996 /* SDWebImageSwiftUI */,
 			);
 			productName = JobHarvest;
 			productReference = C2DF48082F4BBC6400CE891B /* JobHarvest.app */;
@@ -550,6 +564,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				C2DF48322F4BBFE100CE891B /* XCRemoteSwiftPackageReference "amplify-swift" */,
+				C22F1EBD2F7D98490002C996 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				C22F1EBE2F7D9B4D0002C996 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C2DF48092F4BBC6400CE891B /* Products */;
@@ -992,6 +1008,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C22F1EBD2F7D98490002C996 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.4;
+			};
+		};
+		C22F1EBE2F7D9B4D0002C996 /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.8.0;
+			};
+		};
 		C2DF48322F4BBFE100CE891B /* XCRemoteSwiftPackageReference "amplify-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/aws-amplify/amplify-swift";
@@ -1003,6 +1035,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C22F1EBF2F7D9B4D0002C996 /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C22F1EBE2F7D9B4D0002C996 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
+		};
+		C22F1EC22F7D9C720002C996 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C22F1EBD2F7D98490002C996 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
+		};
 		C2DF48332F4BBFE100CE891B /* AWSCognitoAuthPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C2DF48322F4BBFE100CE891B /* XCRemoteSwiftPackageReference "amplify-swift" */;
