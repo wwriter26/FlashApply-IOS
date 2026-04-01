@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 03-feature-polish-05-PLAN.md Task 1; awaiting human-verify checkpoint at Task 2
-last_updated: "2026-03-25T01:45:31.132Z"
-last_activity: 2026-03-11 — Roadmap created; requirements mapped to 4 phases
+status: executing
+stopped_at: Completed 04-hardening-01-PLAN.md
+last_updated: "2026-04-01T17:23:07.639Z"
+last_activity: 2026-04-01
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 11
+  completed_plans: 10
   percent: 100
 ---
 
@@ -21,20 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Users can swipe on jobs, get auto-applied, and track everything — with zero friction from a polished, intuitive mobile UI.
-**Current focus:** Phase 1 - Connectivity
+**Current focus:** Phase 04 — hardening
 
 ## Current Position
 
-Phase: 1 of 4 (Connectivity)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-11 — Roadmap created; requirements mapped to 4 phases
+Phase: 04 (hardening) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-04-01
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: -
 - Total execution time: 0 hours
@@ -46,6 +47,7 @@ Progress: [██████████] 100%
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: -
 - Trend: -
 
@@ -58,6 +60,7 @@ Progress: [██████████] 100%
 | Phase 03-feature-polish P04 | 18m | 2 tasks | 5 files |
 | Phase 03-feature-polish P03 | 7m | 2 tasks | 6 files |
 | Phase 03-feature-polish P05 | 12m | 1 tasks | 6 files |
+| Phase 04-hardening P01 | 20m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -86,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 03-feature-polish]: Notification.Name(.profileDidSave) posted from ProfileViewModel.updateProfile to trigger save success banner in ProfileView
 - [Phase 03-feature-polish]: AppLogger lines kept as localizedDescription — only self.error user-facing assignments replaced with humanReadableDescription
 - [Phase 03-feature-polish]: Extended humanReadableDescription sweep to Views directory (PreferencesQuizView, SettingsView) not just ViewModels
+- [Phase 04-hardening]: seenUrlsCap=500 with parallel Set+Array for FIFO eviction — zero-dependency O(1) pattern
+- [Phase 04-hardening]: Hub listener moved to AuthViewModel.init — ObservableObject lifecycle guarantees exactly-once registration vs SwiftUI View re-renders
 
 ### Pending Todos
 
@@ -99,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T01:45:31.130Z
-Stopped at: Completed 03-feature-polish-05-PLAN.md Task 1; awaiting human-verify checkpoint at Task 2
+Last session: 2026-04-01T17:23:07.636Z
+Stopped at: Completed 04-hardening-01-PLAN.md
 Resume file: None

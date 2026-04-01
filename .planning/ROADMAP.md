@@ -81,7 +81,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Bounded seenUrls with FIFO eviction, Hub listener migration to AuthViewModel
+- [x] 04-01-PLAN.md — Bounded seenUrls with FIFO eviction, Hub listener migration to AuthViewModel
 - [ ] 04-02-PLAN.md — SDWebImageSwiftUI image caching, Sentry crash reporting integration
 
 ## Progress
@@ -94,4 +94,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Connectivity | 1/1 | Complete   | 2026-03-12 |
 | 2. Auth and Profile Foundation | 2/3 | In Progress|  |
 | 3. Feature Polish | 4/5 | In Progress|  |
-| 4. Hardening | 0/2 | Not started | - |
+| 4. Hardening | 1/2 | In Progress|  |
