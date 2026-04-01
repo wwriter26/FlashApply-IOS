@@ -8,6 +8,8 @@
 	<string>$(STRIPE_KEY)</string>
 	<key>BUCKET_NAME</key>
 	<string>$(BUCKET_NAME)</string>
+	<key>SENTRY_DSN</key>
+	<string>$(SENTRY_DSN)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

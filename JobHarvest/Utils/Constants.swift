@@ -15,6 +15,14 @@ enum AppConfig {
     }()
     static let stripePublishableKey = Bundle.main.infoDictionary?["STRIPE_KEY"] as? String ?? ""
     static let bucketName = Bundle.main.infoDictionary?["BUCKET_NAME"] as? String ?? ""
+    static let sentryDsn = Bundle.main.infoDictionary?["SENTRY_DSN"] as? String ?? ""
+    static let isDebug: Bool = {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }()
 }
 
 // MARK: - Colors

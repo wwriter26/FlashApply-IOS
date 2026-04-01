@@ -2,6 +2,7 @@ import SwiftUI
 import Amplify
 import AWSCognitoAuthPlugin
 import AWSS3StoragePlugin
+import Sentry
 import os
 
 @main
@@ -13,6 +14,7 @@ struct JobHarvestApp: App {
     @StateObject private var mailboxVM = MailboxViewModel()
 
     init() {
+        configureSentry()
         configureAmplify()
     }
 
@@ -26,6 +28,22 @@ struct JobHarvestApp: App {
                 .environmentObject(mailboxVM)
                 .preferredColorScheme(.light)
         }
+    }
+
+    // MARK: - Sentry Setup
+    private func configureSentry() {
+        let dsn = AppConfig.sentryDsn
+        guard !dsn.isEmpty, dsn != "YOUR_SENTRY_DSN_HERE" else {
+            AppLogger.auth.info("Sentry DSN not configured — crash reporting disabled")
+            return
+        }
+        SentrySDK.start { options in
+            options.dsn = dsn
+            options.environment = AppConfig.isDebug ? "debug" : "production"
+            options.debug = AppConfig.isDebug
+            options.enabled = !AppConfig.isDebug
+        }
+        AppLogger.auth.info("Sentry configured (environment: \(AppConfig.isDebug ? "debug" : "production"))")
     }
 
     // MARK: - Amplify Setup

@@ -1,8 +1,10 @@
 import SwiftUI
+import SDWebImageSwiftUI
 
 // Fetches company logo from logo.dev using a domain (e.g. "google.com").
 // Pass companyData?.logoDomain for best results; falls back to companyId.
 // Shows a building placeholder on failure.
+// Uses SDWebImageSwiftUI for automatic memory + disk caching.
 struct CompanyLogoView: View {
     let domain: String?
     let size: CGFloat
@@ -11,15 +13,10 @@ struct CompanyLogoView: View {
         Group {
             if let domain = domain, !domain.isEmpty,
                let url = URL(string: "https://img.logo.dev/\(domain)?token=pk_a%5DMObGMfQ7y1P0eKVOGwiw&size=100&format=png") {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFit()
-                    case .failure, .empty:
-                        placeholderView
-                    @unknown default:
-                        placeholderView
-                    }
+                WebImage(url: url) { image in
+                    image.resizable().scaledToFit()
+                } placeholder: {
+                    placeholderView
                 }
             } else {
                 placeholderView

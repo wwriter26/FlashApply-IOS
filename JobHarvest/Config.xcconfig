@@ -10,3 +10,5 @@ API_DOMAIN = dev.jobharvest-api.com/v1
 //STRIPE_KEY = pk_test_YOUR_STRIPE_KEY
 
 BUCKET_NAME = dev-jobharvest-user-file-bucket
+
+SENTRY_DSN = YOUR_SENTRY_DSN_HERE
