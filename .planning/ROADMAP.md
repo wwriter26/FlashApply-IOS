@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Connectivity** - Fix the xcconfig domain and Amplify config so every API call reaches the correct backend (completed 2026-03-12)
 - [ ] **Phase 2: Auth and Profile Foundation** - Correct auth routing, shared ProfileViewModel, and complete onboarding quiz
 - [ ] **Phase 3: Feature Polish** - Verify and polish swipe, applied jobs, payments, and error handling end-to-end
-- [ ] **Phase 4: Hardening** - Add observability, memory guards, Hub token stability, and image caching
+- [x] **Phase 4: Hardening** - Add observability, memory guards, Hub token stability, and image caching (completed 2026-04-01)
 
 ## Phase Details
 
@@ -82,7 +82,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Bounded seenUrls with FIFO eviction, Hub listener migration to AuthViewModel
-- [ ] 04-02-PLAN.md — SDWebImageSwiftUI image caching, Sentry crash reporting integration
+- [x] 04-02-PLAN.md — SDWebImageSwiftUI image caching, Sentry crash reporting integration
 
 ## Progress
 
@@ -94,4 +94,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Connectivity | 1/1 | Complete   | 2026-03-12 |
 | 2. Auth and Profile Foundation | 2/3 | In Progress|  |
 | 3. Feature Polish | 4/5 | In Progress|  |
-| 4. Hardening | 1/2 | In Progress|  |
+| 4. Hardening | 2/2 | Complete   | 2026-04-01 |

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 04-hardening-01-PLAN.md
-last_updated: "2026-04-01T17:23:07.639Z"
+status: verifying
+stopped_at: Completed 04-hardening-02-PLAN.md
+last_updated: "2026-04-01T18:47:47.289Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
   percent: 100
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 Phase: 04 (hardening) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-01
 
 Progress: [██████████] 100%
@@ -61,6 +61,7 @@ Progress: [██████████] 100%
 | Phase 03-feature-polish P03 | 7m | 2 tasks | 6 files |
 | Phase 03-feature-polish P05 | 12m | 1 tasks | 6 files |
 | Phase 04-hardening P01 | 20m | 2 tasks | 4 files |
+| Phase 04-hardening P02 | 7m | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,9 @@ Recent decisions affecting current work:
 - [Phase 03-feature-polish]: Extended humanReadableDescription sweep to Views directory (PreferencesQuizView, SettingsView) not just ViewModels
 - [Phase 04-hardening]: seenUrlsCap=500 with parallel Set+Array for FIFO eviction — zero-dependency O(1) pattern
 - [Phase 04-hardening]: Hub listener moved to AuthViewModel.init — ObservableObject lifecycle guarantees exactly-once registration vs SwiftUI View re-renders
+- [Phase 04-hardening]: SDWebImageSwiftUI WebImage replaces AsyncImage for automatic memory+disk caching — zero config required
+- [Phase 04-hardening]: Sentry guard clause checks for empty/placeholder DSN so app runs without crash if DSN not yet configured
+- [Phase 04-hardening]: Sentry disabled in DEBUG builds (options.enabled = \!isDebug) to avoid noise during development
 
 ### Pending Todos
 
@@ -104,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T17:23:07.636Z
-Stopped at: Completed 04-hardening-01-PLAN.md
+Last session: 2026-04-01T18:47:47.283Z
+Stopped at: Completed 04-hardening-02-PLAN.md
 Resume file: None
