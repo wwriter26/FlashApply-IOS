@@ -25,6 +25,8 @@ final class JobCardsViewModel: ObservableObject {
 
     private let network = NetworkService.shared
     private var seenUrls: Set<String> = []
+    private static let seenUrlsCap = 500
+    private var seenUrlsOrder: [String] = []
 
     // MARK: - Fetch Job Cards
     func fetchJobs(filters: JobFilters = JobFilters(), appending: Bool = false) async {
@@ -51,7 +53,7 @@ final class JobCardsViewModel: ObservableObject {
             )
 
             let newJobs = response.data ?? []
-            newJobs.forEach { seenUrls.insert($0.jobUrl) }
+            newJobs.forEach { recordSeen($0.jobUrl) }
 
             if appending {
                 jobs.append(contentsOf: newJobs)
@@ -184,7 +186,27 @@ final class JobCardsViewModel: ObservableObject {
         enduringSwipes = nil
         noSwipesLeft = false
         seenUrls = []
+        seenUrlsOrder = []
     }
+
+    // MARK: - FIFO Eviction
+    private func recordSeen(_ url: String) {
+        guard !seenUrls.contains(url) else { return }
+        seenUrls.insert(url)
+        seenUrlsOrder.append(url)
+        if seenUrlsOrder.count > Self.seenUrlsCap {
+            let evicted = seenUrlsOrder.removeFirst()
+            seenUrls.remove(evicted)
+        }
+    }
+
+#if DEBUG
+    // Test-only accessors
+    var _seenUrlsCount: Int { seenUrls.count }
+    var _seenUrlsOrderCount: Int { seenUrlsOrder.count }
+    func _recordSeen(_ url: String) { recordSeen(url) }
+    func _seenUrlsContains(_ url: String) -> Bool { seenUrls.contains(url) }
+#endif
 }
 
 // MARK: - Request Bodies

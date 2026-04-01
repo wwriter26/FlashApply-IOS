@@ -22,6 +22,7 @@ final class AuthViewModel: ObservableObject {
 
     private let auth = AuthService.shared
     private let network = NetworkService.shared
+    private var hubToken: UnsubscribeToken?
 
     // MARK: - Check current auth state on app launch
     func checkAuthState() async {
@@ -237,4 +238,9 @@ final class AuthViewModel: ObservableObject {
         }
         isNewUser = false
     }
+
+#if DEBUG
+    // Test-only accessor — verifies Hub listener was registered in init
+    var _hasHubToken: Bool { hubToken != nil }
+#endif
 }
